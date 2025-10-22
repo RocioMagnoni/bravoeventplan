@@ -42,55 +42,80 @@ class _ContadorPageState extends State<ContadorPage> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Stack(
-        children: [
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Dinero total 💰', style: TextStyle(fontSize: 24, color: Colors.yellow)),
-                SizedBox(height: 20),
-                TweenAnimationBuilder<int>(
-                  tween: IntTween(begin: 0, end: money),
-                  duration: Duration(milliseconds: 500),
-                  builder: (context, value, child) => Text(
-                    '\$ $value',
-                    style: TextStyle(fontSize: 48, color: Colors.yellow, fontWeight: FontWeight.bold),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.yellow,
+        title: Text(
+          'Dinero',
+          style: TextStyle(color: Colors.black),
+        ),
+        leading: Navigator.canPop(context)
+            ? IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        )
+            : null,
+      ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Dinero total 💰',
+                      style: TextStyle(fontSize: 24, color: Colors.yellow)),
+                  SizedBox(height: 20),
+                  TweenAnimationBuilder<int>(
+                    tween: IntTween(begin: 0, end: money),
+                    duration: Duration(milliseconds: 500),
+                    builder: (context, value, child) => Text(
+                      '\$ $value',
+                      style: TextStyle(
+                        fontSize: 48,
+                        color: Colors.yellow,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _addMoney,
-                      child: Text('+100'),
-                      style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1E3A5F)),
-                    ),
-                    SizedBox(width: 20),
-                    ElevatedButton(
-                      onPressed: _removeMoney,
-                      child: Text('-100'),
-                      style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1E3A5F)),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          ..._particles.map((p) {
-            double t = _controller.value;
-            return Positioned(
-              left: p.dx,
-              top: p.dy + t * MediaQuery.of(context).size.height,
-              child: Transform.rotate(
-                angle: p.rotation + t * p.rotationSpeed * 6.28,
-                child: Container(width: p.size, height: p.size, color: p.color),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _addMoney,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF1E3A5F),
+                        ),
+                        child: Text('+100'),
+                      ),
+                      SizedBox(width: 20),
+                      ElevatedButton(
+                        onPressed: _removeMoney,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF1E3A5F),
+                        ),
+                        child: Text('-100'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            );
-          }).toList(),
-        ],
+            ),
+            ..._particles.map((p) {
+              double t = _controller.value;
+              return Positioned(
+                left: p.dx,
+                top: p.dy + t * MediaQuery.of(context).size.height,
+                child: Transform.rotate(
+                  angle: p.rotation + t * p.rotationSpeed * 6.28,
+                  child: Container(width: p.size, height: p.size, color: p.color),
+                ),
+              );
+            }).toList(),
+          ],
+        ),
       ),
     );
   }

@@ -70,8 +70,8 @@ class _EventsPageUnifiedState extends State<EventsPageUnified> {
                   SizedBox(height: 10),
                   TextField(
                     controller: _descriptionController,
-                    decoration: InputDecoration(
-                        labelText: 'Descripción (opcional)'),
+                    decoration:
+                    InputDecoration(labelText: 'Descripción (opcional)'),
                   ),
                   SizedBox(height: 10),
                   Row(
@@ -123,7 +123,7 @@ class _EventsPageUnifiedState extends State<EventsPageUnified> {
                         label: Text(
                           guest['name']!,
                           style: TextStyle(
-                            color: isSelected ? Colors.black : Colors.black,
+                            color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -144,7 +144,8 @@ class _EventsPageUnifiedState extends State<EventsPageUnified> {
                   ),
                   SizedBox(height: 20),
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1E3A5F)),
+                    style:
+                    ElevatedButton.styleFrom(backgroundColor: Color(0xFF1E3A5F)),
                     onPressed: () {
                       if (_nameController.text.isEmpty ||
                           _selectedDate == null ||
@@ -164,7 +165,8 @@ class _EventsPageUnifiedState extends State<EventsPageUnified> {
                           'description': _descriptionController.text,
                           'datetime': dateTime,
                           'image': 'event_placeholder.png',
-                          'guests': List<Map<String, String>>.from(_selectedGuests),
+                          'guests':
+                          List<Map<String, String>>.from(_selectedGuests),
                         });
                       });
 
@@ -183,74 +185,88 @@ class _EventsPageUnifiedState extends State<EventsPageUnified> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Color(0xFF1E3A5F),
-          onPressed: _showAddEventDialog,
-          child: Icon(Icons.add),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.yellow,
+        title: Text(
+          'Eventos',
+          style: TextStyle(color: Colors.black),
         ),
-        body: ListView.builder(
-          padding: EdgeInsets.all(12),
-          itemCount: _events.length,
-          itemBuilder: (context, index) {
-            final e = _events[index];
-            final dt = e['datetime'] as DateTime;
-            final guests = e['guests'] as List<Map<String, String>>;
+        leading: Navigator.canPop(context)
+            ? IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        )
+            : null,
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0xFF1E3A5F),
+        onPressed: _showAddEventDialog,
+        child: Icon(Icons.add),
+      ),
+      body: ListView.builder(
+        padding: EdgeInsets.all(12),
+        itemCount: _events.length,
+        itemBuilder: (context, index) {
+          final e = _events[index];
+          final dt = e['datetime'] as DateTime;
+          final guests = e['guests'] as List<Map<String, String>>;
 
-            return Card(
-              color: Colors.yellow,
-              margin: EdgeInsets.symmetric(vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
+          return Card(
+            color: Colors.yellow,
+            margin: EdgeInsets.symmetric(vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${dt.day}/${dt.month}/${dt.year} ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black,
+                        fontFamily: 'RobotoMono'),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    e['name'],
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    e['description'],
+                    style: TextStyle(fontSize: 14, color: Colors.black),
+                  ),
+                  SizedBox(height: 10),
+                  if (guests.isNotEmpty)
+                    Wrap(
+                      spacing: 6,
+                      children: guests.map((g) {
+                        return InputChip(
+                          label: Text(g['name']!),
+                          backgroundColor: Color(0xFF1E3A5F),
+                          labelStyle: TextStyle(color: Colors.black),
+                          onDeleted: () {
+                            setState(() {
+                              e['guests'].remove(g);
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                ],
               ),
-              child: Padding(
-                padding: EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${dt.day}/${dt.month}/${dt.year} ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.black,
-                          fontFamily: 'RobotoMono'),
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      e['name'],
-                      style: TextStyle(
-                          fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600),
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      e['description'],
-                      style: TextStyle(fontSize: 14, color: Colors.black),
-                    ),
-                    SizedBox(height: 10),
-                    if (guests.isNotEmpty)
-                      Wrap(
-                        spacing: 6,
-                        children: guests.map((g) {
-                          return InputChip(
-                            label: Text(g['name']!),
-                            backgroundColor: Color(0xFF1E3A5F),
-                            labelStyle: TextStyle(color: Colors.black),
-                            onDeleted: () {
-                              setState(() {
-                                e['guests'].remove(g);
-                              });
-                            },
-                          );
-                        }).toList(),
-                      ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

@@ -27,6 +27,8 @@ class _CheckListPageState extends State<CheckListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final azul = Color(0xFF1E3A5F); // color azul
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -54,13 +56,15 @@ class _CheckListPageState extends State<CheckListPage> {
                       controller: _taskController,
                       decoration: InputDecoration(
                         labelText: 'Nueva tarea',
-                        labelStyle: TextStyle(color: Colors.yellow),
+                        labelStyle: TextStyle(color: azul),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.yellow),
+                          borderSide: BorderSide(color: azul),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.yellow, width: 2),
+                          borderSide: BorderSide(color: azul, width: 2),
                         ),
+                        filled: true,
+                        fillColor: azul.withOpacity(0.2), // fondo azul claro
                       ),
                       style: TextStyle(color: Colors.white),
                     ),
@@ -69,8 +73,10 @@ class _CheckListPageState extends State<CheckListPage> {
                   ElevatedButton(
                     onPressed: _addTask,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.yellow,
-                      foregroundColor: Colors.black,
+                      backgroundColor: azul,
+                      foregroundColor: Colors.white,
+                      padding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                     ),
                     child: Text('Agregar'),
                   ),
@@ -99,7 +105,7 @@ class _CheckListPageState extends State<CheckListPage> {
                             Switch(
                               value: task['done'],
                               onChanged: (val) => _toggleDone(index, val),
-                              activeColor: Color(0xFF1E3A5F),
+                              activeColor: azul,
                             ),
                             IconButton(
                               icon: Icon(Icons.delete, color: Colors.black),

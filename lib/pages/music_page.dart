@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
-// ----------------- Música (barra independiente por canción) -----------------
 class MusicPage extends StatefulWidget {
   @override
   _MusicPageState createState() => _MusicPageState();
@@ -74,8 +73,22 @@ class _MusicPageState extends State<MusicPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView.builder(
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.yellow,
+        title: Text(
+          'Musica',
+          style: TextStyle(color: Colors.black),
+        ),
+        leading: Navigator.canPop(context)
+            ? IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        )
+            : null,
+      ),
+      body: ListView.builder(
         itemCount: songs.length,
         itemBuilder: (context, index) {
           bool isPlaying = _player.playing && _currentIndex == index;
