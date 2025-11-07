@@ -1,32 +1,13 @@
 {
   "project_info": {
-    "project_number": "1039910904456",
-    "project_id": "eventosapp-e974e",
-    "storage_bucket": "eventosapp-e974e.firebasestorage.app"
+    "project_number": "429116092903",
+    "project_id": "bravoeventplan",
+    "storage_bucket": "bravoeventplan.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1039910904456:android:87cf5114b16beac694b53d",
-        "android_client_info": {
-          "package_name": "com.ejemplo.eventosapp"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBLIo_wIPh68qj4XtbwD88b1wXARhijIe0"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:1039910904456:android:cca482f6870c68c694b53d",
+        "mobilesdk_app_id": "1:429116092903:android:300119ef3efbae94e38d42",
         "android_client_info": {
           "package_name": "com.example.responsive_magnoni"
         }
@@ -34,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBLIo_wIPh68qj4XtbwD88b1wXARhijIe0"
+          "current_key": "AIzaSyAHa1FK_sDSl4c4263c6WcvtRFAjarTvPQ"
         }
       ],
       "services": {
