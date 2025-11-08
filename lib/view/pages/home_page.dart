@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:responsive_magnoni/view/widgets/johnny_tips_carousel.dart';
 import 'adaptive_navigation_scaffold.dart';
 import 'events_page_unified.dart';
 import 'checklist_page.dart';
@@ -24,7 +25,7 @@ class HomePage extends StatelessWidget {
         title: const Text('Inicio', style: TextStyle(color: Colors.black)),
       ),
       drawer: SizedBox(
-        width: 200, // ancho más pequeño
+        width: 200,
         child: Drawer(
           backgroundColor: Colors.black,
           child: ListView(
@@ -35,7 +36,7 @@ class HomePage extends StatelessWidget {
                 child: Center(
                   child: Image.asset(
                     'assets/images/logo.jpg',
-                    width: 400, // más grande para que se vea mejor
+                    width: 400,
                     height: 400,
                   ),
                 ),
@@ -43,64 +44,69 @@ class HomePage extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.event, color: Colors.yellow),
                 title: const Text('Eventos', style: TextStyle(color: Colors.yellow)),
-                onTap: () => _navigateTo(context, EventsPageUnified()),
+                onTap: () => _navigateTo(context, const EventsPageUnified()),
               ),
               ListTile(
                 leading: const Icon(Icons.attach_money, color: Colors.yellow),
                 title: const Text('Dinero', style: TextStyle(color: Colors.yellow)),
-                onTap: () => _navigateTo(context, ContadorPage()),
+                onTap: () => _navigateTo(context, const ContadorPage()),
               ),
               ListTile(
                 leading: const Icon(Icons.music_note, color: Colors.yellow),
                 title: const Text('Música', style: TextStyle(color: Colors.yellow)),
-                onTap: () => _navigateTo(context, MusicPage()),
+                onTap: () => _navigateTo(context, const MusicPage()),
               ),
               ListTile(
                 leading: const Icon(Icons.camera_front, color: Colors.yellow),
                 title: const Text('Espejo', style: TextStyle(color: Colors.yellow)),
-                onTap: () => _navigateTo(context, MirrorPage()),
+                onTap: () => _navigateTo(context, const MirrorPage()),
               ),
               ListTile(
                 leading: const Icon(Icons.checklist, color: Colors.yellow),
                 title: const Text('CheckList', style: TextStyle(color: Colors.yellow)),
-                onTap: () => _navigateTo(context, CheckListPage()),
+                onTap: () => _navigateTo(context, const CheckListPage()),
               ),
               ListTile(
                 leading: const Icon(Icons.emoji_events, color: Colors.yellow),
                 title: const Text('Ranking', style: TextStyle(color: Colors.yellow)),
-                onTap: () => _navigateTo(context, RankingPage()),
+                onTap: () => _navigateTo(context, const RankingPage()),
               ),
             ],
           ),
         ),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset('assets/images/logo.jpg', width: 300),
-            const SizedBox(height: 20),
-            const Text(
-              "¡Bienvenido a EventPlan Johnny Bravo!\nOrganiza tus fiestas, invitados y diversión.",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.yellow, fontSize: 18),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.yellow,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/images/logo.jpg', width: 350),
+              const SizedBox(height: 20),
+              const Text( // Restored the description text
+                "¡Bienvenido a EventPlan Johnny Bravo!\nOrganiza tus fiestas, invitados y mucho mas.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.yellow, fontSize: 18),
               ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => AdaptiveNavigationScaffold()),
-                );
-              },
-              child: const Text("Entra a la App"),
-            ),
-          ],
+              const SizedBox(height: 20),
+              const JohnnyTipsCarousel(),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.yellow,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => AdaptiveNavigationScaffold()),
+                  );
+                },
+                child: const Text("Iniciar"),
+              ),
+            ],
+          ),
         ),
       ),
     );

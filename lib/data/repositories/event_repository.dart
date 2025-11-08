@@ -6,10 +6,15 @@ class EventRepository {
   final String _collectionPath = 'events';
 
   Stream<List<Event>> getEvents() {
-    return _firestore.collection(_collectionPath).snapshots().map((snapshot) {
+    return _firestore
+        .collection(_collectionPath)
+        .orderBy('startTime', descending: false)
+        .snapshots()
+        .map((snapshot) {
       return snapshot.docs.map((doc) {
         final data = doc.data();
         return Event(
+          id: doc.id,
           title: data['title'] ?? '',
           description: data['description'] ?? '',
           guests: List<String>.from(data['guests'] ?? []),
@@ -30,5 +35,20 @@ class EventRepository {
       'endTime': Timestamp.fromDate(event.endTime),
       'imageUrl': event.imageUrl,
     });
+  }
+
+  Future<void> updateEvent(Event event) {
+    return _firestore.collection(_collectionPath).doc(event.id).update({
+      'title': event.title,
+      'description': event.description,
+      'guests': event.guests,
+      'startTime': Timestamp.fromDate(event.startTime),
+      'endTime': Timestamp.fromDate(event.endTime),
+      'imageUrl': event.imageUrl,
+    });
+  }
+
+  Future<void> deleteEvent(String eventId) {
+    return _firestore.collection(_collectionPath).doc(eventId).delete();
   }
 }

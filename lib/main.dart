@@ -1,20 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // Import the generated file
+import 'package:firebase_messaging/firebase_messaging.dart'; // Import Firebase Messaging
+import 'firebase_options.dart'; 
 import 'services/camera_service.dart';
-import 'services/push_notification_service.dart'; // Import the new service
+import 'services/push_notification_service.dart';
 import 'view/pages/home_page.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  // Use the generated options to initialize Firebase
+// Handler for background messages MUST be a top-level function.
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  // Initialize the notification service
-  await PushNotificationService().initialise();
+  print("Handling a background message: ${message.messageId}");
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Set the background messaging handler early
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  
+  // Initialize other services
+  await PushNotificationService().initialise();
   await CameraService.initializeCameras();
+
   runApp(const EventPlanApp());
 }
 

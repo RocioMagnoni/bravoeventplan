@@ -37,6 +37,7 @@ class _AdaptiveNavigationScaffoldState extends State<AdaptiveNavigationScaffold>
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.sizeOf(context);
     final isCompact = screenSize.width < 600;
+    final azul = const Color(0xFF1E3A5F);
 
     return Scaffold(
       body: Row(
@@ -47,8 +48,10 @@ class _AdaptiveNavigationScaffoldState extends State<AdaptiveNavigationScaffold>
               selectedIndex: _selectedIndex,
               onDestinationSelected: (index) => setState(() => _selectedIndex = index),
               labelType: NavigationRailLabelType.all,
-              selectedIconTheme: const IconThemeData(color: Colors.yellow),
-              unselectedIconTheme: const IconThemeData(color: Colors.grey),
+              selectedIconTheme: IconThemeData(color: azul), // Azul when selected
+              unselectedIconTheme: const IconThemeData(color: Colors.yellow), // Amarillo when unselected
+              selectedLabelTextStyle: TextStyle(color: azul),
+              unselectedLabelTextStyle: const TextStyle(color: Colors.yellow),
               destinations: mainNavItems
                   .map((item) => NavigationRailDestination(
                       icon: Icon(item.icon), label: Text(item.label)))
@@ -60,9 +63,10 @@ class _AdaptiveNavigationScaffoldState extends State<AdaptiveNavigationScaffold>
       bottomNavigationBar: isCompact
           ? BottomNavigationBar(
               backgroundColor: Colors.black,
+              type: BottomNavigationBarType.fixed, // To see the background color
               currentIndex: _selectedIndex,
-              selectedItemColor: Colors.yellow,
-              unselectedItemColor: Colors.grey,
+              selectedItemColor: azul, // Azul when selected
+              unselectedItemColor: Colors.yellow, // Amarillo when unselected
               onTap: (index) => setState(() => _selectedIndex = index),
               items: mainNavItems
                   .map((item) => BottomNavigationBarItem(
