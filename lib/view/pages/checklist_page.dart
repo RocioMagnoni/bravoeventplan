@@ -7,10 +7,7 @@ class CheckListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ChecklistViewModel(),
-      child: const _CheckListPageView(),
-    );
+    return const _CheckListPageView();
   }
 }
 
@@ -77,8 +74,10 @@ class _CheckListPageViewState extends State<_CheckListPageView> {
                   const SizedBox(width: 10),
                   ElevatedButton(
                     onPressed: () {
-                      context.read<ChecklistViewModel>().addTask(_taskController.text);
-                      _taskController.clear();
+                      if (_taskController.text.isNotEmpty) {
+                        context.read<ChecklistViewModel>().addTask(_taskController.text);
+                        _taskController.clear();
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: azul,

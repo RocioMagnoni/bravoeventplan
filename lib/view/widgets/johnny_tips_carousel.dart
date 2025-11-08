@@ -8,8 +8,7 @@ class JohnnyTipsCarousel extends StatefulWidget {
   State<JohnnyTipsCarousel> createState() => _JohnnyTipsCarouselState();
 }
 
-class _JohnnyTipsCarouselState extends State<JohnnyTipsCarousel>
-    with SingleTickerProviderStateMixin { // Added mixin for animation
+class _JohnnyTipsCarouselState extends State<JohnnyTipsCarousel> {
   final List<String> _tips = [
     "¡Hey, nena! ¿Sientes eso? Son mis músculos pidiendo más... ¡más fiesta!",
     "Suficiente charla. ¡Es hora de la acción!",
@@ -22,80 +21,75 @@ class _JohnnyTipsCarouselState extends State<JohnnyTipsCarousel>
 
   int _currentIndex = 0;
   Timer? _textTimer;
-  late AnimationController _rotationController;
 
   @override
   void initState() {
     super.initState();
     // Timer for changing text
-    _textTimer = Timer.periodic(const Duration(seconds: 10), (timer) {  // tiempo para cambiar texto
+    _textTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
       if (mounted) {
         setState(() {
           _currentIndex = (_currentIndex + 1) % _tips.length;
         });
       }
     });
-
-    // Controller for the star rotation
-    _rotationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 100), // tiempo para girar de la estrella
-    )..repeat();
   }
 
   @override
   void dispose() {
     _textTimer?.cancel();
-    _rotationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 290, // Made star bigger
-      height: 290, // Made star bigger
+      width: 220, // Made the GIF smaller
+      height: 220, // Made the GIF smaller
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // The rotating star with a black border
-          RotationTransition(
-            turns: _rotationController,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Black star for the border (the largest one)
-                const Icon(
-                  Icons.star_rounded,
-                  color: Colors.black,
-                  size: 290,
-                ),
-                // Yellow star on top (slightly smaller)
-                const Icon(
-                  Icons.star_rounded,
-                  color: Colors.yellow,
-                  size: 280,
-                ),
-              ],
-            ),
+          // The animated GIF background
+          Image.asset(
+            'assets/images/disco_ball.gif',
+            width: 220, // Made the GIF smaller
+            height: 220, // Made the GIF smaller
           ),
           // The text with fade animation
           SizedBox(
-            width: 130, // Adjusted width for more margin
+            width: 140,
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 700),
               transitionBuilder: (Widget child, Animation<double> animation) {
                 return FadeTransition(opacity: animation, child: child);
               },
-              child: Text(
-                _tips[_currentIndex],
-                key: ValueKey<int>(_currentIndex),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 10, // Text size reduced further
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Stack(
+                key: ValueKey<int>(_currentIndex), // Key is now on the Stack
+                children: [
+                  // Outlined text (the border)
+                  Text(
+                    _tips[_currentIndex],
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      foreground: Paint()
+                        ..style = PaintingStyle.stroke
+                        ..strokeWidth = 2.5
+                        ..color = Colors.black,
+                    ),
+                  ),
+                  // Filled text (the content)
+                  Text(
+                    _tips[_currentIndex],
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

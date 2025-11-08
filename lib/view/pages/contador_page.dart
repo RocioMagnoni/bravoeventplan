@@ -8,10 +8,7 @@ class ContadorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ContadorViewModel(),
-      child: const _ContadorPageView(),
-    );
+    return const _ContadorPageView();
   }
 }
 
@@ -64,14 +61,14 @@ class _ContadorPageViewState extends State<_ContadorPageView> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Dinero total 💰',
+                  const Text('Dinero total 💰', 
                       style: TextStyle(fontSize: 24, color: Colors.yellow)),
                   const SizedBox(height: 20),
                   Consumer<ContadorViewModel>(
                     builder: (context, viewModel, child) {
                       if (viewModel.shouldShowConfetti) {
                         _confettiController.play();
-                        viewModel.onConfettiCompleted(); // Reset the flag
+                        viewModel.onConfettiCompleted();
                       }
                       return Text(
                         '\$ ${viewModel.money}',

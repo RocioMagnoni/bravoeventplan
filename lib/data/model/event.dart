@@ -6,6 +6,7 @@ class Event extends Equatable {
   final String? id;
   final String title;
   final String description;
+  final String location; // Added location
   final List<String> guests;
   final DateTime startTime;
   final DateTime endTime;
@@ -15,15 +16,14 @@ class Event extends Equatable {
     this.id,
     required this.title,
     required this.description,
+    required this.location, // Added location
     required this.guests,
     required this.startTime,
     required this.endTime,
     this.imageUrl,
   });
 
-  // Getter to determine the status of the event
   EventStatus get status {
-    // Use UTC for all comparisons to avoid timezone issues
     final now = DateTime.now().toUtc();
     final start = startTime.toUtc();
     final end = endTime.toUtc();
@@ -38,5 +38,5 @@ class Event extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, title, description, guests, startTime, endTime, imageUrl];
+  List<Object?> get props => [id, title, description, location, guests, startTime, endTime, imageUrl];
 }

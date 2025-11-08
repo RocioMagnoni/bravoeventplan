@@ -21,6 +21,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
   void _onLoadEvents(LoadEvents event, Emitter<EventState> emit) {
     emit(EventsLoading());
     _eventsSubscription?.cancel();
+    // Listen to the stream from the repository and add an internal event
     _eventsSubscription = _eventRepository.getEvents().listen(
           (events) => add(_UpdateEvents(events)),
         );
@@ -38,6 +39,8 @@ class EventBloc extends Bloc<EventEvent, EventState> {
     _eventRepository.deleteEvent(event.eventId);
   }
 
+  // This private event receives the list of events from the stream
+  // and emits the EventsLoaded state.
   void _onUpdateEvents(_UpdateEvents event, Emitter<EventState> emit) {
     emit(EventsLoaded(event.events));
   }
@@ -49,6 +52,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
   }
 }
 
+// Private event to handle updates from the stream
 class _UpdateEvents extends EventEvent {
   final List<Event> events;
 

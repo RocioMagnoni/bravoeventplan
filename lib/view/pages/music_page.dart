@@ -9,10 +9,7 @@ class MusicPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => MusicViewModel(),
-      child: const _MusicPageView(),
-    );
+    return const _MusicPageView();
   }
 }
 

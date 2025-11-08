@@ -17,6 +17,7 @@ class EventRepository {
           id: doc.id,
           title: data['title'] ?? '',
           description: data['description'] ?? '',
+          location: data['location'] ?? 'Ubicación no especificada', // Read location
           guests: List<String>.from(data['guests'] ?? []),
           startTime: (data['startTime'] as Timestamp).toDate(),
           endTime: (data['endTime'] as Timestamp).toDate(),
@@ -30,6 +31,7 @@ class EventRepository {
     return _firestore.collection(_collectionPath).add({
       'title': event.title,
       'description': event.description,
+      'location': event.location, // Add location
       'guests': event.guests,
       'startTime': Timestamp.fromDate(event.startTime),
       'endTime': Timestamp.fromDate(event.endTime),
@@ -41,6 +43,7 @@ class EventRepository {
     return _firestore.collection(_collectionPath).doc(event.id).update({
       'title': event.title,
       'description': event.description,
+      'location': event.location, // Update location
       'guests': event.guests,
       'startTime': Timestamp.fromDate(event.startTime),
       'endTime': Timestamp.fromDate(event.endTime),

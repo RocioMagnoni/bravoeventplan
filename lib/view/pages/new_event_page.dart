@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../data/model/event.dart';
-import '../../services/image_service.dart';
+import '../../services/supabase_storage_service.dart';
 
 class NewEventPage extends StatefulWidget {
   const NewEventPage({super.key});
@@ -14,9 +14,10 @@ class NewEventPage extends StatefulWidget {
 }
 
 class _NewEventPageState extends State<NewEventPage> {
-  final _imageService = ImageService();
+  final _supabaseService = SupabaseStorageService();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _locationController = TextEditingController(); // Controller for location
   final _guestController = TextEditingController();
   final List<String> _guests = [];
   DateTime? _selectedStartTime;
@@ -28,6 +29,7 @@ class _NewEventPageState extends State<NewEventPage> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
+    _locationController.dispose(); // Dispose controller
     _guestController.dispose();
     super.dispose();
   }
@@ -67,7 +69,7 @@ class _NewEventPageState extends State<NewEventPage> {
   }
 
   Future<void> _pickImage() async {
-    final image = await _imageService.pickImage();
+    final image = await _supabaseService.pickImage();
     if (image != null) {
       setState(() {
         _selectedImage = image;
@@ -78,6 +80,7 @@ class _NewEventPageState extends State<NewEventPage> {
   Future<void> _saveEvent() async {
     if (_titleController.text.isEmpty ||
         _descriptionController.text.isEmpty ||
+        _locationController.text.isEmpty || // Validate location
         _selectedStartTime == null ||
         _selectedEndTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -96,18 +99,19 @@ class _NewEventPageState extends State<NewEventPage> {
       _isSaving = true;
     });
 
-    String? imagePath;
+    String? imageUrl;
     if (_selectedImage != null) {
-      imagePath = await _imageService.saveImagePermanently(_selectedImage!);
+      imageUrl = await _supabaseService.uploadImage(_selectedImage!);
     }
 
     final newEvent = Event(
       title: _titleController.text,
       description: _descriptionController.text,
+      location: _locationController.text, // Pass location
       guests: _guests,
       startTime: _selectedStartTime!,
       endTime: _selectedEndTime!,
-      imageUrl: imagePath,
+      imageUrl: imageUrl,
     );
 
     if (mounted) {
@@ -120,7 +124,7 @@ class _NewEventPageState extends State<NewEventPage> {
     return Theme(
       data: Theme.of(context).copyWith(
         appBarTheme: const AppBarTheme(
-          iconTheme: IconThemeData(color: Colors.black), // Force black icons
+          iconTheme: IconThemeData(color: Colors.black),
         ),
       ),
       child: Scaffold(
@@ -141,6 +145,10 @@ class _NewEventPageState extends State<NewEventPage> {
 
                 const Text('Descripción', style: TextStyle(color: Colors.yellow, fontSize: 16)),
                 TextField(controller: _descriptionController, style: const TextStyle(color: Colors.white), maxLines: 3, decoration: const InputDecoration(hintText: 'Descripción del evento', hintStyle: TextStyle(color: Colors.white54))),
+                const SizedBox(height: 15),
+
+                const Text('Ubicación', style: TextStyle(color: Colors.yellow, fontSize: 16)),
+                TextField(controller: _locationController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(hintText: 'Ubicación del evento', hintStyle: TextStyle(color: Colors.white54))),
                 const SizedBox(height: 20),
 
                 const Text('Imagen', style: TextStyle(color: Colors.yellow, fontSize: 16)),

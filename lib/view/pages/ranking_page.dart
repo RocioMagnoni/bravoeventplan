@@ -8,10 +8,8 @@ class RankingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => RankingViewModel(),
-      child: const _RankingPageView(),
-    );
+    // The provider is now in main.dart, this page just consumes it.
+    return const _RankingPageView();
   }
 }
 
