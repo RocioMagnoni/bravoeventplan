@@ -5,6 +5,7 @@ import 'package:responsive_magnoni/blocs/events/event_bloc.dart';
 import 'package:responsive_magnoni/blocs/events/event_event.dart';
 import 'package:responsive_magnoni/blocs/events/event_state.dart';
 import 'package:responsive_magnoni/data/model/event.dart';
+import 'package:responsive_magnoni/view/pages/calendar_page.dart';
 import 'package:responsive_magnoni/view/pages/event_details_page.dart';
 import 'package:responsive_magnoni/view/pages/new_event_page.dart';
 import 'package:responsive_magnoni/view/pages/edit_event_page.dart';
@@ -79,14 +80,21 @@ class _EventsPageUnifiedView extends StatelessWidget {
     }
   }
 
+  void _openCalendarView(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const CalendarPage()),
+    );
+  }
+
   String _getStatusText(EventStatus status) {
     switch (status) {
       case EventStatus.inProgress:
-        return 'En Curso';
+        return 'EN CURSO';
       case EventStatus.upcoming:
-        return 'Próximo';
+        return 'PRÓXIMO';
       case EventStatus.finished:
-        return 'Finalizado';
+        return 'FINALIZADO';
     }
   }
 
@@ -130,10 +138,23 @@ class _EventsPageUnifiedView extends StatelessWidget {
           color: Colors.black,
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: azul,
-        child: const Icon(Icons.add, color: Colors.black),
-        onPressed: () => _createNewEvent(context),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'calendar_fab',
+            backgroundColor: azul,
+            child: const Icon(Icons.calendar_today, color: Colors.black),
+            onPressed: () => _openCalendarView(context),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            heroTag: 'add_event_fab',
+            backgroundColor: azul,
+            child: const Icon(Icons.add, color: Colors.black),
+            onPressed: () => _createNewEvent(context),
+          ),
+        ],
       ),
       body: BlocBuilder<EventBloc, EventState>(
         builder: (context, state) {
@@ -176,116 +197,135 @@ class _EventsPageUnifiedView extends StatelessWidget {
                           end: Alignment.bottomRight,
                         ),
                       ),
-                      padding: const EdgeInsets.all(5), // Wider border
+                      padding: const EdgeInsets.all(5), // This creates the border width
                       child: Container(
                         color: Colors.yellow,
-                        child: Stack(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
-                                  child: Text(
-                                    DateFormat('dd/MM/yyyy HH:mm').format(event.startTime),
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 22,
-                                    ),
-                                  ),
-                                ),
-                                ListTile(
-                                  title: Text(event.title, textAlign: TextAlign.center, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 22)),
-                                  subtitle: Column(
+                        child: IntrinsicHeight( // Ensures the dashed line can calculate its height
+                          child: Row(
+                            children: [
+                              // Main ticket content
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () => _openEventDetails(context, event),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
-                                       Row(
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
+                                        child: Text(
+                                          DateFormat('dd/MM/yyyy HH:mm').format(event.startTime),
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(event.title, textAlign: TextAlign.center, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 22)),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(Icons.location_on, color: Colors.black54, size: 16),
+                                                const SizedBox(width: 4),
+                                                Flexible(child: Text(event.location, style: const TextStyle(color: Colors.black54), overflow: TextOverflow.ellipsis)),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'Finaliza: ${DateFormat('dd/MM/yyyy HH:mm').format(event.endTime)}',
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(color: Colors.black54),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          const Icon(Icons.location_on, color: Colors.black54, size: 16),
-                                          const SizedBox(width: 4),
-                                          Text(event.location, style: const TextStyle(color: Colors.black54)),
+                                          IconButton(
+                                            icon: Icon(Icons.edit, color: azul),
+                                            onPressed: () => _openEditEvent(context, event),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.delete, color: Colors.red[900]),
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (BuildContext ctx) {
+                                                  return AlertDialog(
+                                                    title: const Text('Confirmar Borrado'),
+                                                    content: const Text('¿Estás seguro de que quieres borrar este evento?'),
+                                                    actions: <Widget>[
+                                                      TextButton(
+                                                        onPressed: () => Navigator.of(ctx).pop(),
+                                                        child: const Text('Cancelar'),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          context.read<EventBloc>().add(DeleteEvent(event.id!));
+                                                          Navigator.of(ctx).pop();
+                                                        },
+                                                        child: Text('Borrar', style: TextStyle(color: Colors.red[900])),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
+                                            },
+                                          ),
                                         ],
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Finaliza: ${DateFormat('dd/MM/yyyy HH:mm').format(event.endTime)}',
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(color: Colors.black54),
                                       ),
                                     ],
                                   ),
-                                  onTap: () => _openEventDetails(context, event),
                                 ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                              ),
+                              // Dashed line and the stub
+                              SizedBox(
+                                width: 90, // Width for the stub part
+                                child: Row(
                                   children: [
-                                    IconButton(
-                                      icon: Icon(Icons.edit, color: azul),
-                                      onPressed: () => _openEditEvent(context, event),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.delete, color: Colors.red[900]),
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext ctx) {
-                                            return AlertDialog(
-                                              title: const Text('Confirmar Borrado'),
-                                              content: const Text('¿Estás seguro de que quieres borrar este evento?'),
-                                              actions: <Widget>[
-                                                TextButton(
-                                                  onPressed: () => Navigator.of(ctx).pop(),
-                                                  child: const Text('Cancelar'),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () {
-                                                    context.read<EventBloc>().add(DeleteEvent(event.id!));
-                                                    Navigator.of(ctx).pop();
-                                                  },
-                                                  child: Text('Borrar', style: TextStyle(color: Colors.red[900])),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                                  child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: _getStatusColor(event.status),
-                                        borderRadius: BorderRadius.circular(5),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 20.0), // Padding to not reach edges
+                                      child: CustomPaint(
+                                        size: const Size(1, double.infinity),
+                                        painter: VerticalDashedLinePainter(),
                                       ),
-                                      child: Text(
-                                        _getStatusText(event.status).toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
+                                    ),
+                                    Expanded(
+                                      child: RotatedBox(
+                                        quarterTurns: 3,
+                                        child: Center(
+                                          child: Container(
+                                            margin: const EdgeInsets.all(10),
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: _getStatusColor(event.status),
+                                              borderRadius: BorderRadius.circular(5),
+                                            ),
+                                            child: Text(
+                                              _getStatusText(event.status),
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            Positioned.fill(
-                              left: 60,
-                              child: CustomPaint(painter: VerticalDashedLinePainter()),
-                            ),
-                             Positioned.fill(
-                              right: 60,
-                              child: CustomPaint(painter: VerticalDashedLinePainter()),
-                            ),
-                          ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/date_symbol_data_local.dart'; // Import for date formatting
 import 'package:provider/provider.dart';
 import 'package:responsive_magnoni/blocs/events/event_bloc.dart';
 import 'package:responsive_magnoni/blocs/events/event_event.dart';
@@ -10,7 +11,7 @@ import 'package:responsive_magnoni/viewmodel/checklist_viewmodel.dart';
 import 'package:responsive_magnoni/viewmodel/contador_viewmodel.dart';
 import 'package:responsive_magnoni/viewmodel/music_viewmodel.dart';
 import 'package:responsive_magnoni/viewmodel/ranking_viewmodel.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'firebase_options.dart'; 
 import 'services/camera_service.dart';
 import 'services/push_notification_service.dart';
@@ -26,14 +27,15 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Supabase
+
+  // Initialize Date Formatting for Spanish
+  await initializeDateFormatting('es_ES', null);
+
   await Supabase.initialize(
-    url: 'https://qnvuoogeiyzwanynlrtk.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFudnVvb2dlaXl6d2FueW5scnRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1NDI0MzgsImV4cCI6MjA3ODExODQzOH0.rgSF5-sbWq2fvIUPklHY9ZdBZpuhbfi8JC49VAVX75k',
+    url: 'https://pgojhzoxkcjylhvlxmhg.supabase.co', 
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBnb2poem94a2NqeWxoZmx4bWhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTgxMDM1ODksImV4cCI6MjAzMzY3OTU4OX0.kCqB2h-jLMF92F9Y_--fB75YtQ2wVl_jY8sTS0y3z-U',
   );
 
-  // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

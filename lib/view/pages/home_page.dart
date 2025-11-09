@@ -17,6 +17,8 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final azul = const Color(0xFF1E3A5F);
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -83,7 +85,7 @@ class HomePage extends StatelessWidget {
             children: [
               Image.asset('assets/images/logo.jpg', width: 350),
               const SizedBox(height: 20),
-              const Text( // Restored the description text
+              const Text(
                 "¡Bienvenido a EventPlan Johnny Bravo!\nOrganiza tus fiestas, invitados y mucho mas.",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.yellow, fontSize: 18),
@@ -96,6 +98,7 @@ class HomePage extends StatelessWidget {
                   backgroundColor: Colors.yellow,
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  side: BorderSide(color: azul, width: 4), // Added blue border
                 ),
                 onPressed: () {
                   Navigator.push(
