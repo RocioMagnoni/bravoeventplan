@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:camera/camera.dart';
-import '../../viewmodel/mirror_viewmodel.dart';
+import 'package:lottie/lottie.dart';
+import '../../blocs/mirror/mirror_bloc.dart';
+import '../../blocs/mirror/mirror_event.dart';
+import '../../blocs/mirror/mirror_state.dart';
 
 class MirrorPage extends StatelessWidget {
   const MirrorPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => MirrorViewModel(),
+    return BlocProvider(
+      create: (_) => MirrorBloc()..add(InitializeCamera()),
       child: const _MirrorPageView(),
     );
   }
@@ -20,57 +23,75 @@ class _MirrorPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.watch<MirrorViewModel>();
-
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.yellow,
-        title: const Text("Espejo", style: TextStyle(color: Colors.black)),
-        leading: Navigator.canPop(context)
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black),
-                onPressed: () => Navigator.pop(context),
-              )
-            : null,
+        centerTitle: true,
+        title: const Text(
+          "Espejo",
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)
+        ),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Builder(
-        builder: (context) {
-          if (viewModel.isUnsupported) {
-            return const Center(
+      body: BlocBuilder<MirrorBloc, MirrorState>(
+        builder: (context, state) {
+          if (state is MirrorLoading || state is MirrorInitial) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is MirrorReady) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.yellow, width: 15), // Increased from 10 to 15
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.yellow.withOpacity(0.5),
+                            blurRadius: 20,
+                            spreadRadius: 5,
+                          )
+                        ]
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: CameraPreview(state.controller),
+                      ),
+                    ),
+                    _buildSparkle(top: 20, right: 20),
+                  ],
+                ),
+              ),
+            );
+          } else if (state is MirrorFailure) {
+            return Center(
               child: Text(
-                "Cámara no disponible en esta plataforma.",
-                style: TextStyle(color: Colors.yellow, fontSize: 20),
+                state.error,
+                style: const TextStyle(color: Colors.red, fontSize: 18),
+                textAlign: TextAlign.center,
               ),
             );
           }
-
-          if (viewModel.initializeControllerFuture == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          return FutureBuilder<void>(
-            future: viewModel.initializeControllerFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              final controller = viewModel.controller;
-
-              if (controller == null || !controller.value.isInitialized) {
-                return const Center(
-                  child: Text(
-                    "Error al inicializar la cámara.",
-                    style: TextStyle(color: Colors.red, fontSize: 20),
-                  ),
-                );
-              }
-
-              return CameraPreview(controller);
-            },
-          );
+          return const SizedBox.shrink();
         },
+      ),
+    );
+  }
+
+  Widget _buildSparkle({double? top, double? bottom, double? left, double? right}) {
+    return Positioned(
+      top: top,
+      bottom: bottom,
+      left: left,
+      right: right,
+      child: Lottie.asset(
+        'assets/animations/sparkles.json',
+        width: 80, 
+        height: 80,
       ),
     );
   }

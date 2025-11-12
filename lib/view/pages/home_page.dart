@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:responsive_magnoni/view/pages/gallery_page.dart';
 import 'package:responsive_magnoni/view/widgets/johnny_tips_carousel.dart';
 import 'adaptive_navigation_scaffold.dart';
 import 'events_page_unified.dart';
 import 'checklist_page.dart';
 import 'music_page.dart';
 import 'contador_page.dart';
-import 'ranking_page.dart';
 import 'mirror_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -24,7 +24,8 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.yellow,
         iconTheme: const IconThemeData(color: Colors.black),
-        title: const Text('Inicio', style: TextStyle(color: Colors.black)),
+        centerTitle: true, // Center title
+        title: const Text('Inicio', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)), // Make it bold
       ),
       drawer: SizedBox(
         width: 200,
@@ -49,6 +50,11 @@ class HomePage extends StatelessWidget {
                 onTap: () => _navigateTo(context, const EventsPageUnified()),
               ),
               ListTile(
+                leading: const Icon(Icons.photo_library, color: Colors.yellow),
+                title: const Text('Galería', style: TextStyle(color: Colors.yellow)),
+                onTap: () => _navigateTo(context, const GalleryPage()),
+              ),
+              ListTile(
                 leading: const Icon(Icons.attach_money, color: Colors.yellow),
                 title: const Text('Dinero', style: TextStyle(color: Colors.yellow)),
                 onTap: () => _navigateTo(context, const ContadorPage()),
@@ -68,11 +74,6 @@ class HomePage extends StatelessWidget {
                 title: const Text('CheckList', style: TextStyle(color: Colors.yellow)),
                 onTap: () => _navigateTo(context, const CheckListPage()),
               ),
-              ListTile(
-                leading: const Icon(Icons.emoji_events, color: Colors.yellow),
-                title: const Text('Ranking', style: TextStyle(color: Colors.yellow)),
-                onTap: () => _navigateTo(context, const RankingPage()),
-              ),
             ],
           ),
         ),
@@ -86,7 +87,7 @@ class HomePage extends StatelessWidget {
               Image.asset('assets/images/logo.jpg', width: 350),
               const SizedBox(height: 20),
               const Text(
-                "¡Bienvenido a EventPlan Johnny Bravo!\nOrganiza tus fiestas, invitados y mucho mas.",
+                "Bienvenido, Johnny Bravo. Prepárate para brillar, baby!",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.yellow, fontSize: 18),
               ),
@@ -98,7 +99,7 @@ class HomePage extends StatelessWidget {
                   backgroundColor: Colors.yellow,
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  side: BorderSide(color: azul, width: 4), // Added blue border
+                  side: BorderSide(color: azul, width: 3),
                 ),
                 onPressed: () {
                   Navigator.push(

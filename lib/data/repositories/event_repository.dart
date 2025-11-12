@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/event.dart';
+import '../model/guest.dart'; // Import the Guest model
 
 class EventRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -12,43 +13,20 @@ class EventRepository {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        final data = doc.data();
-        return Event(
-          id: doc.id,
-          title: data['title'] ?? '',
-          description: data['description'] ?? '',
-          location: data['location'] ?? 'Ubicación no especificada', // Read location
-          guests: List<String>.from(data['guests'] ?? []),
-          startTime: (data['startTime'] as Timestamp).toDate(),
-          endTime: (data['endTime'] as Timestamp).toDate(),
-          imageUrl: data['imageUrl'],
-        );
+        // Use the factory constructor from the Event model
+        return Event.fromSnapshot(doc);
       }).toList();
     });
   }
 
   Future<void> addEvent(Event event) {
-    return _firestore.collection(_collectionPath).add({
-      'title': event.title,
-      'description': event.description,
-      'location': event.location, // Add location
-      'guests': event.guests,
-      'startTime': Timestamp.fromDate(event.startTime),
-      'endTime': Timestamp.fromDate(event.endTime),
-      'imageUrl': event.imageUrl,
-    });
+    // Use the toJson method from the Event model
+    return _firestore.collection(_collectionPath).add(event.toJson());
   }
 
   Future<void> updateEvent(Event event) {
-    return _firestore.collection(_collectionPath).doc(event.id).update({
-      'title': event.title,
-      'description': event.description,
-      'location': event.location, // Update location
-      'guests': event.guests,
-      'startTime': Timestamp.fromDate(event.startTime),
-      'endTime': Timestamp.fromDate(event.endTime),
-      'imageUrl': event.imageUrl,
-    });
+    // Use the toJson method from the Event model
+    return _firestore.collection(_collectionPath).doc(event.id).update(event.toJson());
   }
 
   Future<void> deleteEvent(String eventId) {

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -45,6 +46,21 @@ class EventsPageUnified extends StatelessWidget {
 class _EventsPageUnifiedView extends StatelessWidget {
   const _EventsPageUnifiedView();
 
+  static const _editFinishedPhrases = [
+    "¡Woah, nena! El pasado no se puede cambiar, ni siquiera por mí.",
+    "Esa fiesta ya es historia, y la historia no se edita.",
+  ];
+
+  static const _editInProgressPhrases = [
+    "¡Hey, nena! Una fiesta en marcha no se edita, ¡se vive!",
+    "¡No toques nada! La perfección está en curso.",
+  ];
+
+  static const _deleteInProgressPhrases = [
+    "¡Hey! ¡Una fiesta en marcha es sagrada!",
+    "No puedes parar esta fiesta, ¡está que arde!",
+  ];
+
   void _openEventDetails(BuildContext context, Event event) {
     Navigator.push(
       context,
@@ -57,7 +73,21 @@ class _EventsPageUnifiedView extends StatelessWidget {
     );
   }
 
-  Future<void> _openEditEvent(BuildContext context, Event event) async {
+  Future<void> _handleEdit(BuildContext context, Event event) async {
+    if (event.status == EventStatus.finished) {
+      final randomPhrase = _editFinishedPhrases[Random().nextInt(_editFinishedPhrases.length)];
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(randomPhrase, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)), backgroundColor: Colors.yellow),
+      );
+      return;
+    }
+    if (event.status == EventStatus.inProgress) {
+      final randomPhrase = _editInProgressPhrases[Random().nextInt(_editInProgressPhrases.length)];
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(randomPhrase, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)), backgroundColor: Colors.yellow),
+      );
+      return;
+    }
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
@@ -70,14 +100,43 @@ class _EventsPageUnifiedView extends StatelessWidget {
   }
 
   Future<void> _createNewEvent(BuildContext context) async {
-    final newEvent = await Navigator.push<Event>(
+    await Navigator.push<void>(
       context,
       MaterialPageRoute(builder: (_) => const NewEventPage()),
     );
+  }
 
-    if (newEvent != null && context.mounted) {
-      context.read<EventBloc>().add(AddEvent(newEvent));
+  void _handleDelete(BuildContext context, Event event) {
+    if (event.status == EventStatus.inProgress) {
+      final randomPhrase = _deleteInProgressPhrases[Random().nextInt(_deleteInProgressPhrases.length)];
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(randomPhrase, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)), backgroundColor: Colors.yellow),
+      );
+      return;
     }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: const Text('Confirmar Borrado'),
+          content: const Text('¿Estás seguro de que quieres borrar este evento?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                context.read<EventBloc>().add(DeleteEvent(event.id!));
+                Navigator.of(ctx).pop();
+              },
+              child: Text('Borrar', style: TextStyle(color: Colors.red[900])),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _openCalendarView(BuildContext context) {
@@ -131,7 +190,7 @@ class _EventsPageUnifiedView extends StatelessWidget {
         backgroundColor: Colors.yellow,
         centerTitle: true,
         title: const Text(
-          'Eventos',
+          'Eventos Geniales',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         iconTheme: const IconThemeData(
@@ -185,6 +244,8 @@ class _EventsPageUnifiedView extends StatelessWidget {
               itemCount: sortedEvents.length,
               itemBuilder: (context, index) {
                 final event = sortedEvents[index];
+                bool isEditable = event.status == EventStatus.upcoming;
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: ClipPath(
@@ -197,13 +258,12 @@ class _EventsPageUnifiedView extends StatelessWidget {
                           end: Alignment.bottomRight,
                         ),
                       ),
-                      padding: const EdgeInsets.all(5), // This creates the border width
+                      padding: const EdgeInsets.all(5),
                       child: Container(
                         color: Colors.yellow,
-                        child: IntrinsicHeight( // Ensures the dashed line can calculate its height
+                        child: IntrinsicHeight(
                           child: Row(
                             children: [
-                              // Main ticket content
                               Expanded(
                                 child: InkWell(
                                   onTap: () => _openEventDetails(context, event),
@@ -249,35 +309,12 @@ class _EventsPageUnifiedView extends StatelessWidget {
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           IconButton(
-                                            icon: Icon(Icons.edit, color: azul),
-                                            onPressed: () => _openEditEvent(context, event),
+                                            icon: Icon(Icons.edit, color: isEditable ? azul : Colors.grey),
+                                            onPressed: () => _handleEdit(context, event),
                                           ),
                                           IconButton(
-                                            icon: Icon(Icons.delete, color: Colors.red[900]),
-                                            onPressed: () {
-                                              showDialog(
-                                                context: context,
-                                                builder: (BuildContext ctx) {
-                                                  return AlertDialog(
-                                                    title: const Text('Confirmar Borrado'),
-                                                    content: const Text('¿Estás seguro de que quieres borrar este evento?'),
-                                                    actions: <Widget>[
-                                                      TextButton(
-                                                        onPressed: () => Navigator.of(ctx).pop(),
-                                                        child: const Text('Cancelar'),
-                                                      ),
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          context.read<EventBloc>().add(DeleteEvent(event.id!));
-                                                          Navigator.of(ctx).pop();
-                                                        },
-                                                        child: Text('Borrar', style: TextStyle(color: Colors.red[900])),
-                                                      ),
-                                                    ],
-                                                  );
-                                                },
-                                              );
-                                            },
+                                            icon: Icon(Icons.delete, color: event.status == EventStatus.inProgress ? Colors.grey : Colors.red[900]),
+                                            onPressed: () => _handleDelete(context, event),
                                           ),
                                         ],
                                       ),
@@ -285,13 +322,12 @@ class _EventsPageUnifiedView extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              // Dashed line and the stub
                               SizedBox(
-                                width: 90, // Width for the stub part
+                                width: 90,
                                 child: Row(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 20.0), // Padding to not reach edges
+                                      padding: const EdgeInsets.symmetric(vertical: 20.0),
                                       child: CustomPaint(
                                         size: const Size(1, double.infinity),
                                         painter: VerticalDashedLinePainter(),

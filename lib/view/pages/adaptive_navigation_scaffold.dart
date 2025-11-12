@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:responsive_magnoni/view/pages/gallery_page.dart';
 import 'events_page_unified.dart';
 import 'checklist_page.dart';
 import 'music_page.dart';
 import 'contador_page.dart';
-import 'ranking_page.dart';
 import 'mirror_page.dart';
 
 class AppNavItem {
@@ -16,11 +16,11 @@ class AppNavItem {
 
 final List<AppNavItem> mainNavItems = [
   const AppNavItem(icon: Icons.event, label: 'Eventos', page: EventsPageUnified()),
+  const AppNavItem(icon: Icons.photo_library, label: 'Galería', page: GalleryPage()),
   const AppNavItem(icon: Icons.attach_money, label: 'Dinero', page: ContadorPage()),
   const AppNavItem(icon: Icons.music_note, label: 'Música', page: MusicPage()),
   const AppNavItem(icon: Icons.camera_front, label: 'Espejo', page: MirrorPage()),
   const AppNavItem(icon: Icons.checklist, label: 'CheckList', page: CheckListPage()),
-  const AppNavItem(icon: Icons.emoji_events, label: 'Ranking', page: RankingPage()),
 ];
 
 class AdaptiveNavigationScaffold extends StatefulWidget {

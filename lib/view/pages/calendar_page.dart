@@ -40,7 +40,8 @@ class _CalendarPageState extends State<CalendarPage> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.yellow,
-        title: const Text('Calendario de Eventos', style: TextStyle(color: Colors.black)),
+        centerTitle: true,
+        title: const Text('Calendario de Eventos', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: BlocBuilder<EventBloc, EventState>(

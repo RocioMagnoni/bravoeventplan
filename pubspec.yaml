@@ -21,7 +21,9 @@ dependencies:
   camera: ^0.10.6
   flutter_bloc: ^8.1.3
   equatable: ^2.0.5
-  table_calendar: ^3.1.2 # Added Calendar package
+  table_calendar: ^3.1.2
+  flip_card: ^0.7.0
+  lottie: ^3.1.2 # Added for Lottie animations
 
   # Supabase Package
   supabase_flutter: ^2.5.8
@@ -54,11 +56,15 @@ flutter:
     - assets/images/song5.jpg
     - assets/images/billete.png
     - assets/images/logo.jpg
-    - assets/images/disco_ball.gif
+    - assets/images/disco_ball.webp
+    - assets/images/vault.png
+    - assets/images/mirror_frame.png
     - assets/audio/mis_canciones/Johnny Bravo (opening español latino).mp3
     - assets/audio/mis_canciones/La canción de johnny Bravo  (mujer).mp3
     - assets/audio/mis_canciones/Johnny Bravo -  Hay un tipo guapo en mi casa.mp3
     - assets/audio/mis_canciones/3T - Why_ (Official Video) ft. Michael Jackson.mp3
+    - assets/animations/fire_animation.json
+    - assets/animations/sparkles.json
 
   fonts:
     - family: WurmicsBravo

@@ -26,7 +26,7 @@ class _JohnnyTipsCarouselState extends State<JohnnyTipsCarousel> {
   void initState() {
     super.initState();
     // Timer for changing text
-    _textTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+    _textTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       if (mounted) {
         setState(() {
           _currentIndex = (_currentIndex + 1) % _tips.length;
@@ -44,16 +44,16 @@ class _JohnnyTipsCarouselState extends State<JohnnyTipsCarousel> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 220, // Made the GIF smaller
-      height: 220, // Made the GIF smaller
+      width: 200, // Made the GIF smaller
+      height: 200, // Made the GIF smaller
       child: Stack(
         alignment: Alignment.center,
         children: [
           // The animated GIF background
           Image.asset(
-            'assets/images/disco_ball.gif',
-            width: 220, // Made the GIF smaller
-            height: 220, // Made the GIF smaller
+            'assets/images/disco_ball.webp',
+            width: 200, // Made the GIF smaller
+            height: 200, // Made the GIF smaller
           ),
           // The text with fade animation
           SizedBox(

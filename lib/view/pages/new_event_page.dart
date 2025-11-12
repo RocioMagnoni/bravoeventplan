@@ -1,8 +1,13 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:responsive_magnoni/data/model/guest.dart';
+import '../../blocs/events/event_bloc.dart';
+import '../../blocs/events/event_event.dart';
 import '../../data/model/event.dart';
 import '../../services/supabase_storage_service.dart';
 
@@ -17,19 +22,26 @@ class _NewEventPageState extends State<NewEventPage> {
   final _supabaseService = SupabaseStorageService();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _locationController = TextEditingController(); // Controller for location
+  final _locationController = TextEditingController();
+  final _priceController = TextEditingController();
   final _guestController = TextEditingController();
-  final List<String> _guests = [];
+  final List<Guest> _guests = [];
   DateTime? _selectedStartTime;
   DateTime? _selectedEndTime;
   XFile? _selectedImage;
   bool _isSaving = false;
 
+  final _johnnyPhrases = [
+    "¡Uooh, mamá! ¡Evento guardado!",
+    "¡Añadida con estilo, baby!",
+  ];
+
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
-    _locationController.dispose(); // Dispose controller
+    _locationController.dispose();
+    _priceController.dispose();
     _guestController.dispose();
     super.dispose();
   }
@@ -37,33 +49,32 @@ class _NewEventPageState extends State<NewEventPage> {
   void _addGuest() {
     if (_guestController.text.isEmpty) return;
     setState(() {
-      _guests.add(_guestController.text);
+      _guests.add(Guest(name: _guestController.text, status: GuestStatus.pending));
       _guestController.clear();
     });
   }
 
   Future<void> _selectDateTime(bool isStartTime) async {
-    final initialDateTime = isStartTime ? _selectedStartTime : _selectedEndTime;
-    final date = await showDatePicker(
-      context: context,
-      initialDate: initialDateTime ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+    final DateTime? pickedDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2000), 
+        lastDate: DateTime(2101)
     );
-    if (date == null) return;
+    if (pickedDate == null) return;
 
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(initialDateTime ?? DateTime.now()),
+    final TimeOfDay? pickedTime = await showTimePicker(
+        context: context, 
+        initialTime: TimeOfDay.now()
     );
-    if (time == null) return;
+    if (pickedTime == null) return;
 
     setState(() {
-      final selectedDateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      final fullDateTime = DateTime(pickedDate.year, pickedDate.month, pickedDate.day, pickedTime.hour, pickedTime.minute);
       if (isStartTime) {
-        _selectedStartTime = selectedDateTime;
+        _selectedStartTime = fullDateTime;
       } else {
-        _selectedEndTime = selectedDateTime;
+        _selectedEndTime = fullDateTime;
       }
     });
   }
@@ -78,19 +89,9 @@ class _NewEventPageState extends State<NewEventPage> {
   }
 
   Future<void> _saveEvent() async {
-    if (_titleController.text.isEmpty ||
-        _descriptionController.text.isEmpty ||
-        _locationController.text.isEmpty || // Validate location
-        _selectedStartTime == null ||
-        _selectedEndTime == null) {
+    if (_titleController.text.isEmpty || _selectedStartTime == null || _selectedEndTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, completa todos los campos.')),
-      );
-      return;
-    }
-    if (_selectedStartTime!.isAfter(_selectedEndTime!)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('La fecha de inicio no puede ser posterior a la de fin.')),
+        const SnackBar(content: Text('Título y fechas son obligatorios.')),
       );
       return;
     }
@@ -101,119 +102,165 @@ class _NewEventPageState extends State<NewEventPage> {
 
     String? imageUrl;
     if (_selectedImage != null) {
-      imageUrl = await _supabaseService.uploadImage(_selectedImage!);
+      final (url, error) = await _supabaseService.uploadImage(_selectedImage!);
+      if (error != null) {
+        if(mounted){
+           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al subir imagen: $error')));
+           setState(() => _isSaving = false);
+        }
+        return;
+      }
+      imageUrl = url;
     }
 
     final newEvent = Event(
       title: _titleController.text,
       description: _descriptionController.text,
-      location: _locationController.text, // Pass location
+      location: _locationController.text,
       guests: _guests,
       startTime: _selectedStartTime!,
       endTime: _selectedEndTime!,
       imageUrl: imageUrl,
+      pricePerGuest: double.tryParse(_priceController.text) ?? 0.0,
     );
 
     if (mounted) {
-      Navigator.pop(context, newEvent);
+      context.read<EventBloc>().add(AddEvent(newEvent));
+      final randomPhrase = _johnnyPhrases[Random().nextInt(_johnnyPhrases.length)];
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(randomPhrase, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)), backgroundColor: Colors.yellow),
+      );
+      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        appBarTheme: const AppBarTheme(
-          iconTheme: IconThemeData(color: Colors.black),
-        ),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.yellow,
+        centerTitle: true,
+        title: const Text('Nuevo Evento', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        appBar: AppBar(
-          backgroundColor: Colors.yellow,
-          title: const Text('Nuevo Evento', style: TextStyle(color: Colors.black)),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Título', style: TextStyle(color: Colors.yellow, fontSize: 16)),
-                TextField(controller: _titleController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(hintText: 'Título del evento', hintStyle: TextStyle(color: Colors.white54))),
-                const SizedBox(height: 15),
-
-                const Text('Descripción', style: TextStyle(color: Colors.yellow, fontSize: 16)),
-                TextField(controller: _descriptionController, style: const TextStyle(color: Colors.white), maxLines: 3, decoration: const InputDecoration(hintText: 'Descripción del evento', hintStyle: TextStyle(color: Colors.white54))),
-                const SizedBox(height: 15),
-
-                const Text('Ubicación', style: TextStyle(color: Colors.yellow, fontSize: 16)),
-                TextField(controller: _locationController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(hintText: 'Ubicación del evento', hintStyle: TextStyle(color: Colors.white54))),
-                const SizedBox(height: 20),
-
-                const Text('Imagen', style: TextStyle(color: Colors.yellow, fontSize: 16)),
-                const SizedBox(height: 10),
-                GestureDetector(
-                  onTap: _pickImage,
-                  child: Container(
-                    height: 150,
-                    width: double.infinity,
-                    decoration: BoxDecoration(color: Colors.grey[800], borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.yellow, width: 2)),
-                    child: _selectedImage != null
-                        ? (kIsWeb
-                            ? Image.network(_selectedImage!.path, fit: BoxFit.cover)
-                            : Image.file(File(_selectedImage!.path), fit: BoxFit.cover))
-                        : const Center(child: Icon(Icons.add_a_photo, color: Colors.yellow, size: 50)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                const Text('Inicio del evento', style: TextStyle(color: Colors.yellow, fontSize: 16)),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(child: Text(_selectedStartTime == null ? 'No seleccionada' : DateFormat('dd/MM/yyyy HH:mm').format(_selectedStartTime!), style: const TextStyle(color: Colors.white, fontSize: 16))),
-                    ElevatedButton(onPressed: () => _selectDateTime(true), style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow, foregroundColor: Colors.black), child: const Text('Seleccionar')),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                const Text('Fin del evento', style: TextStyle(color: Colors.yellow, fontSize: 16)),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(child: Text(_selectedEndTime == null ? 'No seleccionada' : DateFormat('dd/MM/yyyy HH:mm').format(_selectedEndTime!), style: const TextStyle(color: Colors.white, fontSize: 16))),
-                    ElevatedButton(onPressed: () => _selectDateTime(false), style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow, foregroundColor: Colors.black), child: const Text('Seleccionar')),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                const Text('Invitados', style: TextStyle(color: Colors.yellow, fontSize: 16)),
-                Row(
-                  children: [
-                    Expanded(child: TextField(controller: _guestController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(hintText: 'Agregar invitado', hintStyle: TextStyle(color: Colors.white54)))),
-                    const SizedBox(width: 10),
-                    ElevatedButton(onPressed: _addGuest, style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow, foregroundColor: Colors.black), child: const Text('Agregar')),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                ..._guests.map((guest) => Card(color: Colors.yellow, child: ListTile(title: Text(guest, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)), trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.black), onPressed: () => setState(() => _guests.remove(guest)))))),
-                const SizedBox(height: 20),
-                
-                Center(
-                  child: _isSaving
-                      ? const CircularProgressIndicator()
-                      : ElevatedButton(
-                          onPressed: _saveEvent,
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow, foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15)),
-                          child: const Text('Guardar Evento'),
-                        ),
-                ),
-              ],
-            ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildImagePicker(),
+              const SizedBox(height: 20),
+              _buildTextField(_titleController, 'Título'),
+              _buildTextField(_descriptionController, 'Descripción', maxLines: 3),
+              _buildTextField(_locationController, 'Ubicación'),
+              _buildTextField(_priceController, 'Valor por Invitado', keyboardType: TextInputType.number),
+              const SizedBox(height: 20),
+              _buildDateTimePicker('Inicio del evento', _selectedStartTime, true),
+              _buildDateTimePicker('Fin del evento', _selectedEndTime, false),
+              const SizedBox(height: 20),
+              const Text('Invitados', style: TextStyle(color: Colors.yellow, fontSize: 16)),
+              _buildGuestInputField(),
+              const SizedBox(height: 10),
+              _buildGuestList(),
+              const SizedBox(height: 30),
+              Center(
+                child: _isSaving
+                    ? const CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: _saveEvent,
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow, foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15)),
+                        child: const Text('Guardar Evento'),
+                      ),
+              ),
+            ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, {TextInputType keyboardType = TextInputType.text, int maxLines = 1}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Colors.yellow),
+          enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.yellow)),
+          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 2)),
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildImagePicker() {
+    return GestureDetector(
+      onTap: _pickImage,
+      child: Container(
+        height: 200,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.grey[800],
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.yellow, width: 2),
+        ),
+        child: _selectedImage != null
+            ? (kIsWeb
+                ? Image.network(_selectedImage!.path, fit: BoxFit.cover)
+                : Image.file(File(_selectedImage!.path), fit: BoxFit.cover))
+            : const Center(child: Icon(Icons.add_a_photo, color: Colors.yellow, size: 50)),
+      ),
+    );
+  }
+
+  Widget _buildDateTimePicker(String label, DateTime? selectedTime, bool isStart) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(color: Colors.yellow, fontSize: 16)),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(child: Text(selectedTime == null ? 'No seleccionada' : DateFormat('dd/MM/yyyy HH:mm').format(selectedTime), style: const TextStyle(color: Colors.white, fontSize: 16))),
+            ElevatedButton(onPressed: () => _selectDateTime(isStart), style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow, foregroundColor: Colors.black), child: const Text('Seleccionar')),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGuestInputField() {
+    return Row(
+      children: [
+        Expanded(child: TextField(controller: _guestController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(hintText: 'Agregar invitado', hintStyle: TextStyle(color: Colors.white54)))),
+        const SizedBox(width: 10),
+        ElevatedButton(onPressed: _addGuest, style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow, foregroundColor: Colors.black), child: const Text('Agregar')),
+      ],
+    );
+  }
+
+  Widget _buildGuestList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _guests.length,
+      itemBuilder: (context, index) {
+        final guest = _guests[index];
+        return Card(
+          color: Colors.yellow,
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: ListTile(
+            title: Text(guest.name, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.black), onPressed: () => setState(() => _guests.remove(guest))),
+          ),
+        );
+      },
     );
   }
 }

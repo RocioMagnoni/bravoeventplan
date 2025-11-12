@@ -2,17 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/date_symbol_data_local.dart'; // Import for date formatting
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_magnoni/blocs/checklist/checklist_bloc.dart';
+import 'package:responsive_magnoni/blocs/contador/contador_bloc.dart';
+import 'package:responsive_magnoni/blocs/contador/contador_event.dart';
 import 'package:responsive_magnoni/blocs/events/event_bloc.dart';
 import 'package:responsive_magnoni/blocs/events/event_event.dart';
+import 'package:responsive_magnoni/blocs/gallery/gallery_bloc.dart';
+import 'package:responsive_magnoni/blocs/gallery/gallery_event.dart';
+import 'package:responsive_magnoni/blocs/music/music_bloc.dart';
+import 'package:responsive_magnoni/data/repositories/checklist_repository.dart';
+import 'package:responsive_magnoni/data/repositories/contador_repository.dart';
 import 'package:responsive_magnoni/data/repositories/event_repository.dart';
-import 'package:responsive_magnoni/viewmodel/checklist_viewmodel.dart';
-import 'package:responsive_magnoni/viewmodel/contador_viewmodel.dart';
-import 'package:responsive_magnoni/viewmodel/music_viewmodel.dart';
-import 'package:responsive_magnoni/viewmodel/ranking_viewmodel.dart';
+import 'package:responsive_magnoni/data/repositories/gallery_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'firebase_options.dart'; 
+import 'firebase_options.dart';
 import 'services/camera_service.dart';
 import 'services/push_notification_service.dart';
 import 'view/pages/home_page.dart';
@@ -28,12 +33,11 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Date Formatting for Spanish
   await initializeDateFormatting('es_ES', null);
 
   await Supabase.initialize(
-    url: 'https://pgojhzoxkcjylhvlxmhg.supabase.co', 
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBnb2poem94a2NqeWxoZmx4bWhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTgxMDM1ODksImV4cCI6MjAzMzY3OTU4OX0.kCqB2h-jLMF92F9Y_--fB75YtQ2wVl_jY8sTS0y3z-U',
+    url: 'https://qnvuoogeiyzwanynlrtk.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFudnVvb2dlaXl6d2FueW5scnRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1NDI0MzgsImV4cCI6MjA3ODExODQzOH0.rgSF5-sbWq2fvIUPklHY9ZdBZpuhbfi8JC49VAVX75k',
   );
 
   await Firebase.initializeApp(
@@ -41,7 +45,7 @@ Future<void> main() async {
   );
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  
+
   await PushNotificationService().initialise();
   await CameraService.initializeCameras();
 
@@ -53,18 +57,35 @@ class EventPlanApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
+    // Create repositories here to be used by Blocs
+    final eventRepository = EventRepository();
+    final galleryRepository = GalleryRepository();
+    final contadorRepository = ContadorRepository();
+    final checklistRepository = ChecklistRepository();
+
+    return MultiBlocProvider(
       providers: [
         BlocProvider<EventBloc>(
-          create: (_) => EventBloc(EventRepository())..add(LoadEvents()),
+          create: (_) => EventBloc(eventRepository)..add(LoadEvents()),
         ),
-        ChangeNotifierProvider<RankingViewModel>(create: (_) => RankingViewModel()),
-        ChangeNotifierProvider<ContadorViewModel>(create: (_) => ContadorViewModel()),
-        ChangeNotifierProvider<ChecklistViewModel>(create: (_) => ChecklistViewModel()),
-        ChangeNotifierProvider<MusicViewModel>(create: (_) => MusicViewModel()),
+        BlocProvider<GalleryBloc>(
+          create: (_) => GalleryBloc(galleryRepository)..add(LoadGallery()),
+        ),
+        BlocProvider<ContadorBloc>(
+          create: (_) => ContadorBloc(
+            eventRepository: eventRepository,
+            contadorRepository: contadorRepository,
+          )..add(LoadContador()),
+        ),
+        BlocProvider<ChecklistBloc>(
+          create: (_) => ChecklistBloc(checklistRepository),
+        ),
+        BlocProvider<MusicBloc>(
+          create: (_) => MusicBloc(),
+        ),
       ],
       child: MaterialApp(
-        title: 'EventPlan Johnny Bravo',
+        title: 'EventPlan',
         theme: ThemeData(
           fontFamily: 'WurmicsBravo',
           brightness: Brightness.dark,
