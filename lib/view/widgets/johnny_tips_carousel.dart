@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class JohnnyTipsCarousel extends StatefulWidget {
   const JohnnyTipsCarousel({super.key});
@@ -44,16 +45,16 @@ class _JohnnyTipsCarouselState extends State<JohnnyTipsCarousel> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 200, // Made the GIF smaller
-      height: 200, // Made the GIF smaller
+      width: 280, // Made the GIF smaller
+      height: 250, // Made the GIF smaller
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // The animated GIF background
-          Image.asset(
-            'assets/images/disco_ball.webp',
-            width: 200, // Made the GIF smaller
-            height: 200, // Made the GIF smaller
+          // The animated background
+          Lottie.asset(
+            'assets/animations/disco_ball.json',
+            width: 280, // Made the GIF smaller
+            height: 280, // Made the GIF smaller
           ),
           // The text with fade animation
           SizedBox(
@@ -84,7 +85,7 @@ class _JohnnyTipsCarouselState extends State<JohnnyTipsCarousel> {
                     _tips[_currentIndex],
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Colors.yellow,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),

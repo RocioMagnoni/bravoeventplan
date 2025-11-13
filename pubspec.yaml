@@ -75,6 +75,7 @@ flutter:
     - assets/animations/asistio.json
     - assets/animations/no_asistio.json
     - assets/animations/confetti.json
+    - assets/animations/disco_ball.json
 
 
   fonts:
