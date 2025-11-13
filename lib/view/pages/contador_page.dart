@@ -70,8 +70,8 @@ class _ContadorPageViewState extends State<_ContadorPageView> {
                         _buildTotalGanancias(state.gananciaTotalBruta),
                         const SizedBox(height: 24),
                         _buildManualControls(context, azul),
-                        const SizedBox(height: 24), // Increased space
-                        _buildHistorialContainer(state, azul), // New container for history
+                        const SizedBox(height: 24),
+                        _buildHistorialContainer(state, azul),
                       ],
                     ),
                   );
@@ -98,8 +98,8 @@ class _ContadorPageViewState extends State<_ContadorPageView> {
       alignment: Alignment.center,
       children: [
         Image.asset(
-          'assets/images/vault.png', 
-          width: 250, 
+          'assets/images/vault.png',
+          width: 250,
           height: 250,
           errorBuilder: (context, error, stackTrace) {
             return Container(

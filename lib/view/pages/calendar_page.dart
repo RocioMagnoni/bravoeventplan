@@ -83,6 +83,20 @@ class _CalendarPageState extends State<CalendarPage> {
                   selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                   onDaySelected: _onDaySelected,
                   eventLoader: getEventsForDay,
+                  calendarBuilders: CalendarBuilders(
+                    markerBuilder: (context, day, events) {
+                      if (events.isEmpty) return const SizedBox();
+                      return const Positioned(
+                        right: 1,
+                        bottom: 1,
+                        child: Icon(
+                          Icons.star_rounded, 
+                          color: Colors.black, // As you ordered.
+                          size: 18,
+                        ),
+                      );
+                    },
+                  ),
                   calendarStyle: CalendarStyle(
                     defaultTextStyle: const TextStyle(color: Colors.black),
                     weekendTextStyle: const TextStyle(color: Colors.black), // All days are black
@@ -92,10 +106,6 @@ class _CalendarPageState extends State<CalendarPage> {
                     ),
                     selectedDecoration: BoxDecoration(
                       color: azul,
-                      shape: BoxShape.circle,
-                    ),
-                     markerDecoration: const BoxDecoration(
-                      color: Colors.red,
                       shape: BoxShape.circle,
                     ),
                   ),

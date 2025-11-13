@@ -59,12 +59,9 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
   }
 
   void _saveAttendance() {
-    bool isFinishedNow = DateTime.now().isAfter(widget.event.endTime);
-    double finalEarnedAmount = isFinishedNow ? _montoGanadoActual : widget.event.totalEarned;
-
     final updatedEvent = widget.event.copyWith(
       guests: _guests,
-      totalEarned: finalEarnedAmount,
+      totalEarned: _montoGanadoActual,
     );
     
     context.read<EventBloc>().add(UpdateEvent(updatedEvent));
@@ -76,7 +73,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
       ),
     );
 
-    if (isFinishedNow) {
+    if (DateTime.now().isAfter(widget.event.endTime)) {
         Navigator.of(context).pop();
     }
   }
@@ -101,27 +98,49 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (widget.event.imageUrl != null && widget.event.imageUrl!.isNotEmpty)
-                ClipRRect(
-                   borderRadius: BorderRadius.circular(15.0),
-                   child: Image.network(
-                      widget.event.imageUrl!,
-                      width: double.infinity,
-                      height: 250,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Center(child: Icon(Icons.error, color: Colors.red, size: 50)),
-                   ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: ClipRRect(
+                     borderRadius: BorderRadius.circular(15.0),
+                     child: Image.network(
+                        widget.event.imageUrl!,
+                        width: double.infinity,
+                        height: 250,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(child: Icon(Icons.error, color: Colors.red, size: 50)),
+                     ),
+                  ),
                 ),
-              const SizedBox(height: 20),
-              Text(widget.event.title, style: const TextStyle(color: Colors.yellow, fontSize: 24, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              Text(widget.event.description, style: const TextStyle(color: Colors.white, fontSize: 16)),
-              const SizedBox(height: 15),
-              Row(children: [ const Icon(Icons.location_on, color: Colors.yellow, size: 18), const SizedBox(width: 8), Expanded(child: Text(widget.event.location, style: const TextStyle(color: Colors.white, fontSize: 16)))]),
-              const SizedBox(height: 15),
-              _buildRichDate('Inicio: ', widget.event.startTime),
-              const SizedBox(height: 5),
-              _buildRichDate('Fin:      ', widget.event.endTime),
+
+              // VIP Box for event details
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: azul.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(widget.event.title, textAlign: TextAlign.center, style: const TextStyle(color: Colors.yellow, fontSize: 24, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 15),
+                    Text(widget.event.description, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 16)),
+                    const SizedBox(height: 15),
+                    Row(children: [ const Icon(Icons.location_on, color: Colors.yellow, size: 18), const SizedBox(width: 8), Expanded(child: Text(widget.event.location, style: const TextStyle(color: Colors.white, fontSize: 16)))]),
+                    const SizedBox(height: 15),
+                     _buildRichDate('Inicio: ', widget.event.startTime),
+                    const SizedBox(height: 5),
+                    _buildRichDate('Fin:      ', widget.event.endTime),
+                  ],
+                ),
+              ),
+
+              const Divider(color: Colors.yellow, height: 40, thickness: 1),
+
+              // Financial Info moved up
+              _buildFinancialInfo(),
+
               const SizedBox(height: 20),
               Text(_getTitleForStatus(eventStatus), style: const TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
@@ -130,7 +149,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> with SingleTickerPr
               else
                 _buildGuestList(eventStatus),
               const SizedBox(height: 20),
-              _buildFinancialInfo(),
+              
               if (eventStatus == EventStatus.inProgress)
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0),

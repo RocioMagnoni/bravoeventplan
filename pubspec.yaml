@@ -24,6 +24,7 @@ dependencies:
   table_calendar: ^3.1.2
   flip_card: ^0.7.0
   lottie: ^3.1.2 # Added for Lottie animations
+  rxdart: ^0.27.7 # Added for combining streams
 
   # Supabase Package
   supabase_flutter: ^2.5.8
@@ -37,6 +38,12 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logo.jpg"
 
 flutter:
   uses-material-design: true
@@ -65,6 +72,10 @@ flutter:
     - assets/audio/mis_canciones/3T - Why_ (Official Video) ft. Michael Jackson.mp3
     - assets/animations/fire_animation.json
     - assets/animations/sparkles.json
+    - assets/animations/asistio.json
+    - assets/animations/no_asistio.json
+    - assets/animations/confetti.json
+
 
   fonts:
     - family: WurmicsBravo

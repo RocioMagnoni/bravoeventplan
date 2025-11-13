@@ -1,63 +1,89 @@
 import 'dart:async';
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
-import '../../data/model/event.dart';
-import '../../data/repositories/event_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:responsive_magnoni/data/model/event.dart';
+import 'package:responsive_magnoni/data/repositories/event_repository.dart';
 import 'event_event.dart';
 import 'event_state.dart';
 
 class EventBloc extends Bloc<EventEvent, EventState> {
   final EventRepository _eventRepository;
-  StreamSubscription? _eventsSubscription;
 
   EventBloc(this._eventRepository) : super(EventsInitial()) {
     on<LoadEvents>(_onLoadEvents);
     on<AddEvent>(_onAddEvent);
     on<UpdateEvent>(_onUpdateEvent);
     on<DeleteEvent>(_onDeleteEvent);
-    on<_UpdateEvents>(_onUpdateEvents);
   }
 
-  void _onLoadEvents(LoadEvents event, Emitter<EventState> emit) {
+  int _getStatusSortPriority(EventStatus status) {
+    switch (status) {
+      case EventStatus.inProgress:
+        return 0;
+      case EventStatus.upcoming:
+        return 1;
+      case EventStatus.finished:
+        return 2;
+    }
+  }
+
+  List<Event> _sortEvents(List<Event> events) {
+    final sorted = List<Event>.from(events);
+    sorted.sort((a, b) {
+      final priorityA = _getStatusSortPriority(a.status);
+      // THE CULPRIT IS EXORCISED!
+      final priorityB = _getStatusSortPriority(b.status);
+      if (priorityA != priorityB) {
+        return priorityA.compareTo(priorityB);
+      }
+      return a.startTime.compareTo(b.startTime);
+    });
+    return sorted;
+  }
+
+  Future<void> _onLoadEvents(LoadEvents event, Emitter<EventState> emit) async {
     emit(EventsLoading());
-    _eventsSubscription?.cancel();
-    // Listen to the stream from the repository and add an internal event
-    _eventsSubscription = _eventRepository.getEvents().listen(
-          (events) => add(_UpdateEvents(events)),
-        );
+    try {
+      await emit.forEach<List<Event>>(
+        _eventRepository.getEvents(),
+        onData: (events) {
+          final sortedEvents = _sortEvents(events);
+          if (state is EventCreationSuccess) {
+            return EventsLoaded(sortedEvents);
+          }
+          return EventsLoaded(sortedEvents);
+        },
+        onError: (error, _) => EventsError(error.toString()),
+      );
+    } catch (e) {
+      emit(EventsError(e.toString()));
+    }
   }
 
-  void _onAddEvent(AddEvent event, Emitter<EventState> emit) {
-    _eventRepository.addEvent(event.event);
+  Future<void> _onAddEvent(AddEvent event, Emitter<EventState> emit) async {
+    try {
+      await _eventRepository.addEvent(event.event);
+      if (state is EventsLoaded) {
+        final currentEvents = (state as EventsLoaded).events;
+        emit(EventCreationSuccess(_sortEvents(currentEvents)));
+      }
+    } catch (e) {
+      emit(EventsError("Failed to add event: ${e.toString()}"));
+    }
   }
 
-  void _onUpdateEvent(UpdateEvent event, Emitter<EventState> emit) {
-    _eventRepository.updateEvent(event.event);
+  Future<void> _onUpdateEvent(UpdateEvent event, Emitter<EventState> emit) async {
+    try {
+      await _eventRepository.updateEvent(event.event);
+    } catch (e) {
+      emit(EventsError("Failed to update event: ${e.toString()}"));
+    }
   }
 
-  void _onDeleteEvent(DeleteEvent event, Emitter<EventState> emit) {
-    _eventRepository.deleteEvent(event.eventId);
+  Future<void> _onDeleteEvent(DeleteEvent event, Emitter<EventState> emit) async {
+    try {
+      await _eventRepository.deleteEvent(event.eventId);
+    } catch (e) {
+      emit(EventsError("Failed to delete event: ${e.toString()}"));
+    }
   }
-
-  // This private event receives the list of events from the stream
-  // and emits the EventsLoaded state.
-  void _onUpdateEvents(_UpdateEvents event, Emitter<EventState> emit) {
-    emit(EventsLoaded(event.events));
-  }
-
-  @override
-  Future<void> close() {
-    _eventsSubscription?.cancel();
-    return super.close();
-  }
-}
-
-// Private event to handle updates from the stream
-class _UpdateEvents extends EventEvent {
-  final List<Event> events;
-
-  const _UpdateEvents(this.events);
-
-  @override
-  List<Object> get props => [events];
 }

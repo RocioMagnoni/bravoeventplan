@@ -10,7 +10,6 @@ class CheckListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Assuming ChecklistBloc is provided above in the widget tree
     context.read<ChecklistBloc>().add(LoadTasks());
     return const _CheckListPageView();
   }
@@ -105,10 +104,9 @@ class _CheckListPageViewState extends State<_CheckListPageView> {
                             child: ListTile(
                               title: Text(
                                 task.title,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
-                                  decoration: task.isDone ? TextDecoration.lineThrough : null,
                                 ),
                               ),
                               trailing: Row(

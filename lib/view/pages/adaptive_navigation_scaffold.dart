@@ -14,12 +14,13 @@ class AppNavItem {
   const AppNavItem({required this.icon, required this.label, required this.page});
 }
 
+// Themed Nav Items
 final List<AppNavItem> mainNavItems = [
-  const AppNavItem(icon: Icons.event, label: 'Eventos', page: EventsPageUnified()),
+  const AppNavItem(icon: Icons.celebration, label: 'Eventos', page: EventsPageUnified()),
   const AppNavItem(icon: Icons.photo_library, label: 'Galería', page: GalleryPage()),
-  const AppNavItem(icon: Icons.attach_money, label: 'Dinero', page: ContadorPage()),
+  const AppNavItem(icon: Icons.monetization_on, label: 'Bóveda', page: ContadorPage()),
   const AppNavItem(icon: Icons.music_note, label: 'Música', page: MusicPage()),
-  const AppNavItem(icon: Icons.camera_front, label: 'Espejo', page: MirrorPage()),
+  const AppNavItem(icon: Icons.camera_front, label: 'Espejo', page: MirrorPage()), // Corrected Icon
   const AppNavItem(icon: Icons.checklist, label: 'CheckList', page: CheckListPage()),
 ];
 
@@ -35,45 +36,66 @@ class _AdaptiveNavigationScaffoldState extends State<AdaptiveNavigationScaffold>
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.sizeOf(context);
+    final screenSize = MediaQuery.of(context).size;
     final isCompact = screenSize.width < 600;
     final azul = const Color(0xFF1E3A5F);
 
-    return Scaffold(
-      body: Row(
-        children: [
-          if (!isCompact)
+    if (isCompact) {
+      // Compact layout with BottomNavigationBar
+      return Scaffold(
+        body: mainNavItems[_selectedIndex].page,
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Colors.black,
+          type: BottomNavigationBarType.fixed, 
+          currentIndex: _selectedIndex,
+          selectedItemColor: azul, // Selected is Blue
+          unselectedItemColor: Colors.yellow, // Unselected is Yellow
+          onTap: (index) => setState(() => _selectedIndex = index),
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+          items: mainNavItems.map((item) => 
+            BottomNavigationBarItem(icon: Icon(item.icon, size: 28), label: item.label)
+          ).toList(),
+        ),
+      );
+    } else {
+      // Expanded layout with NavigationRail
+      return Scaffold(
+        body: Row(
+          children: [
             NavigationRail(
               backgroundColor: Colors.black,
               selectedIndex: _selectedIndex,
               onDestinationSelected: (index) => setState(() => _selectedIndex = index),
               labelType: NavigationRailLabelType.all,
-              selectedIconTheme: IconThemeData(color: azul), // Azul when selected
-              unselectedIconTheme: const IconThemeData(color: Colors.yellow), // Amarillo when unselected
-              selectedLabelTextStyle: TextStyle(color: azul),
-              unselectedLabelTextStyle: const TextStyle(color: Colors.yellow),
-              destinations: mainNavItems
-                  .map((item) => NavigationRailDestination(
-                      icon: Icon(item.icon), label: Text(item.label)))
-                  .toList(),
+              leading: _buildHeader(),
+              selectedIconTheme: IconThemeData(color: azul, size: 32), // Selected is Blue
+              unselectedIconTheme: const IconThemeData(color: Colors.yellow, size: 28), // Unselected is Yellow
+              selectedLabelTextStyle: TextStyle(color: azul, fontWeight: FontWeight.bold, fontSize: 14),
+              unselectedLabelTextStyle: const TextStyle(color: Colors.yellow, fontWeight: FontWeight.normal, fontSize: 12),
+              indicatorColor: Colors.transparent, // Let the icon color handle the selection
+              destinations: mainNavItems.map((item) => 
+                NavigationRailDestination(icon: Icon(item.icon), label: Text(item.label))
+              ).toList(),
             ),
-          Expanded(child: mainNavItems[_selectedIndex].page),
+            const VerticalDivider(thickness: 1, width: 1, color: Colors.grey),
+            Expanded(child: mainNavItems[_selectedIndex].page),
+          ],
+        ),
+      );
+    }
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20.0),
+      child: Column(
+        children: [
+          Image.asset('assets/images/logo.jpg', width: 60, height: 60),
+          const SizedBox(height: 8),
+          const Text('EventPlan', style: TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold)),
         ],
       ),
-      bottomNavigationBar: isCompact
-          ? BottomNavigationBar(
-              backgroundColor: Colors.black,
-              type: BottomNavigationBarType.fixed, // To see the background color
-              currentIndex: _selectedIndex,
-              selectedItemColor: azul, // Azul when selected
-              unselectedItemColor: Colors.yellow, // Amarillo when unselected
-              onTap: (index) => setState(() => _selectedIndex = index),
-              items: mainNavItems
-                  .map((item) => BottomNavigationBarItem(
-                      icon: Icon(item.icon), label: item.label))
-                  .toList(),
-            )
-          : null,
     );
   }
 }

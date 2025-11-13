@@ -60,7 +60,8 @@ class EventPlanApp extends StatelessWidget {
     // Create repositories here to be used by Blocs
     final eventRepository = EventRepository();
     final galleryRepository = GalleryRepository();
-    final contadorRepository = ContadorRepository();
+    // The ContadorRepository now needs the EventRepository to listen to its stream
+    final contadorRepository = ContadorRepository(eventRepository: eventRepository);
     final checklistRepository = ChecklistRepository();
 
     return MultiBlocProvider(
@@ -72,8 +73,8 @@ class EventPlanApp extends StatelessWidget {
           create: (_) => GalleryBloc(galleryRepository)..add(LoadGallery()),
         ),
         BlocProvider<ContadorBloc>(
+          // The ContadorBloc now only needs the unified ContadorRepository
           create: (_) => ContadorBloc(
-            eventRepository: eventRepository,
             contadorRepository: contadorRepository,
           )..add(LoadContador()),
         ),

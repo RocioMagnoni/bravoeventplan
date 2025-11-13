@@ -12,6 +12,7 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   void _navigateTo(BuildContext context, Widget page) {
+    Navigator.pop(context); // Close the drawer first
     Navigator.push(context, MaterialPageRoute(builder: (_) => page));
   }
 
@@ -24,18 +25,20 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.yellow,
         iconTheme: const IconThemeData(color: Colors.black),
-        centerTitle: true, // Center title
-        title: const Text('Inicio', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)), // Make it bold
+        centerTitle: true,
+        title: const Text('Inicio', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
       ),
       drawer: SizedBox(
-        width: 200,
+        width: 250, // Setting a narrower width for the drawer
         child: Drawer(
           backgroundColor: Colors.black,
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
               DrawerHeader(
-                decoration: const BoxDecoration(color: Colors.black),
+                decoration: BoxDecoration(
+                  color: azul.withOpacity(0.2),
+                ),
                 child: Center(
                   child: Image.asset(
                     'assets/images/logo.jpg',
@@ -45,35 +48,35 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.event, color: Colors.yellow),
-                title: const Text('Eventos', style: TextStyle(color: Colors.yellow)),
-                onTap: () => _navigateTo(context, const EventsPageUnified()),
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library, color: Colors.yellow),
-                title: const Text('Galería', style: TextStyle(color: Colors.yellow)),
-                onTap: () => _navigateTo(context, const GalleryPage()),
-              ),
-              ListTile(
-                leading: const Icon(Icons.attach_money, color: Colors.yellow),
-                title: const Text('Dinero', style: TextStyle(color: Colors.yellow)),
-                onTap: () => _navigateTo(context, const ContadorPage()),
-              ),
-              ListTile(
-                leading: const Icon(Icons.music_note, color: Colors.yellow),
-                title: const Text('Música', style: TextStyle(color: Colors.yellow)),
-                onTap: () => _navigateTo(context, const MusicPage()),
-              ),
-              ListTile(
-                leading: const Icon(Icons.camera_front, color: Colors.yellow),
-                title: const Text('Espejo', style: TextStyle(color: Colors.yellow)),
-                onTap: () => _navigateTo(context, const MirrorPage()),
-              ),
-              ListTile(
-                leading: const Icon(Icons.checklist, color: Colors.yellow),
-                title: const Text('CheckList', style: TextStyle(color: Colors.yellow)),
-                onTap: () => _navigateTo(context, const CheckListPage()),
-              ),
+                  leading: const Icon(Icons.celebration, color: Colors.yellow),
+                  title: const Text('Eventos', style: TextStyle(color: Colors.yellow)),
+                  onTap: () => _navigateTo(context, const EventsPageUnified()),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library, color: Colors.yellow),
+                  title: const Text('Galería', style: TextStyle(color: Colors.yellow)),
+                  onTap: () => _navigateTo(context, const GalleryPage()),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.monetization_on, color: Colors.yellow),
+                  title: const Text('Bóveda', style: TextStyle(color: Colors.yellow)),
+                  onTap: () => _navigateTo(context, const ContadorPage()),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.music_note, color: Colors.yellow),
+                  title: const Text('Música', style: TextStyle(color: Colors.yellow)),
+                  onTap: () => _navigateTo(context, const MusicPage()),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.camera_front, color: Colors.yellow),
+                  title: const Text('Espejo', style: TextStyle(color: Colors.yellow)),
+                  onTap: () => _navigateTo(context, const MirrorPage()),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.checklist, color: Colors.yellow),
+                  title: const Text('CheckList', style: TextStyle(color: Colors.yellow)),
+                  onTap: () => _navigateTo(context, const CheckListPage()),
+                ),
             ],
           ),
         ),
@@ -84,7 +87,7 @@ class HomePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/images/logo.jpg', width: 350),
+              Image.asset('assets/images/logo.jpg', width: 220),
               const SizedBox(height: 20),
               const Text(
                 "Bienvenido, Johnny Bravo. Prepárate para brillar, baby!",
@@ -104,7 +107,7 @@ class HomePage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => AdaptiveNavigationScaffold()),
+                    MaterialPageRoute(builder: (_) => const AdaptiveNavigationScaffold()),
                   );
                 },
                 child: const Text("Iniciar"),

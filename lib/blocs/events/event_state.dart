@@ -21,6 +21,14 @@ class EventsLoaded extends EventState {
   List<Object> get props => [events];
 }
 
+// New state for successful event creation
+class EventCreationSuccess extends EventsLoaded {
+  const EventCreationSuccess(List<Event> events) : super(events);
+
+  @override
+  List<Object> get props => [events, identityHashCode(this)]; // To make it unique
+}
+
 class EventsError extends EventState {
   final String message;
 

@@ -5,26 +5,33 @@ abstract class GalleryState extends Equatable {
   const GalleryState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
-// Initial state, before anything is loaded
 class GalleryInitial extends GalleryState {}
 
-// State while loading data from the repository
 class GalleryLoading extends GalleryState {}
 
-// State when the list of people has been successfully loaded
 class GalleryLoaded extends GalleryState {
   final List<GalleryPerson> people;
 
   const GalleryLoaded(this.people);
 
   @override
-  List<Object> get props => [people];
+  List<Object?> get props => [people, identityHashCode(this)]; // Add identity to distinguish instances
 }
 
-// State when an error occurs
+// This state is emitted specifically to trigger an animation.
+class GalleryUpdateSuccess extends GalleryLoaded {
+  final String updatedPersonId;
+
+  const GalleryUpdateSuccess(List<GalleryPerson> people, this.updatedPersonId) 
+      : super(people);
+
+  @override
+  List<Object?> get props => [people, updatedPersonId];
+}
+
 class GalleryError extends GalleryState {
   final String message;
 

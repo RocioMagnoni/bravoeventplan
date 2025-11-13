@@ -5,9 +5,13 @@ class GalleryRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _collectionPath = 'gallery';
 
-  // Get a stream of people from Firestore
+  // Get a stream of people from Firestore, ordered by ranking
   Stream<List<GalleryPerson>> getPeopleStream() {
-    return _firestore.collection(_collectionPath).snapshots().map((snapshot) {
+    return _firestore
+        .collection(_collectionPath)
+        .orderBy('ranking', descending: true) // Order by ranking!
+        .snapshots()
+        .map((snapshot) {
       return snapshot.docs.map((doc) => GalleryPerson.fromSnapshot(doc)).toList();
     });
   }
