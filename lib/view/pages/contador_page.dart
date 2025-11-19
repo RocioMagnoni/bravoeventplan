@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../blocs/contador/contador_bloc.dart';
 import '../../blocs/contador/contador_event.dart';
 import '../../blocs/contador/contador_state.dart';
+import '../widgets/main_drawer.dart';
 
 class ContadorPage extends StatelessWidget {
   const ContadorPage({super.key});
@@ -50,6 +51,7 @@ class _ContadorPageViewState extends State<_ContadorPageView> {
         title: const Text('Bóveda de Johnny', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
+      drawer: const MainDrawer(currentPage: AppPage.vault), // ⬅️ CORRECTED THIS
       body: SafeArea(
         child: Stack(
           alignment: Alignment.topCenter,

@@ -5,6 +5,7 @@ import 'package:lottie/lottie.dart';
 import '../../blocs/mirror/mirror_bloc.dart';
 import '../../blocs/mirror/mirror_event.dart';
 import '../../blocs/mirror/mirror_state.dart';
+import '../widgets/main_drawer.dart';
 
 class MirrorPage extends StatelessWidget {
   const MirrorPage({super.key});
@@ -34,6 +35,7 @@ class _MirrorPageView extends StatelessWidget {
         ),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
+      drawer: const MainDrawer(currentPage: AppPage.mirror), // ⬅️ CORRECTED THIS
       body: BlocBuilder<MirrorBloc, MirrorState>(
         builder: (context, state) {
           if (state is MirrorLoading || state is MirrorInitial) {

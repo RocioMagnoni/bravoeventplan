@@ -5,6 +5,7 @@ import '../../blocs/music/music_bloc.dart';
 import '../../blocs/music/music_event.dart';
 import '../../blocs/music/music_state.dart';
 import '../../data/model/song.dart';
+import '../widgets/main_drawer.dart';
 
 class MusicPage extends StatelessWidget {
   const MusicPage({super.key});
@@ -30,6 +31,7 @@ class _MusicPageView extends StatelessWidget {
         title: const Text('Música Cool', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
+      drawer: const MainDrawer(currentPage: AppPage.music), // ⬅️ CORRECTED THIS
       body: BlocBuilder<MusicBloc, MusicState>(
         builder: (context, state) {
           if (state is MusicLoading || state is MusicInitial) {

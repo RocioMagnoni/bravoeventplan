@@ -4,6 +4,7 @@ import '../../blocs/checklist/checklist_bloc.dart';
 import '../../blocs/checklist/checklist_event.dart';
 import '../../blocs/checklist/checklist_state.dart';
 import '../../data/model/task.dart';
+import '../widgets/main_drawer.dart';
 
 class CheckListPage extends StatelessWidget {
   const CheckListPage({super.key});
@@ -51,6 +52,7 @@ class _CheckListPageViewState extends State<_CheckListPageView> {
         title: const Text('Checklist', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
+      drawer: const MainDrawer(currentPage: AppPage.checklist), // ⬅️ CORRECTED THIS
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(12),

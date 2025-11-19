@@ -68,7 +68,7 @@ class _DrawerNavigationScaffoldState extends State<DrawerNavigationScaffold> {
     );
   }
 
-    Widget _buildDrawerItem(BuildContext context, {required IconData icon, required String text, required int index, required Color azul}) {
+  Widget _buildDrawerItem(BuildContext context, {required IconData icon, required String text, required int index, required Color azul}) {
     final bool isSelected = _selectedIndex == index;
 
     return ListTile(

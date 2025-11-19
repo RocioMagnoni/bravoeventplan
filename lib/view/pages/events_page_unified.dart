@@ -12,6 +12,7 @@ import 'package:responsive_magnoni/view/pages/calendar_page.dart';
 import 'package:responsive_magnoni/view/pages/event_details_page.dart';
 import 'package:responsive_magnoni/view/pages/new_event_page.dart';
 import 'package:responsive_magnoni/view/pages/edit_event_page.dart';
+import '../widgets/main_drawer.dart';
 import '../widgets/ticket_clipper.dart';
 
 // A custom painter for vertical dashed lines
@@ -194,6 +195,7 @@ class _EventsPageUnifiedState extends State<EventsPageUnified> with TickerProvid
         ),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
+      drawer: const MainDrawer(currentPage: AppPage.events), // ⬅️ UPDATED THIS
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -215,7 +217,7 @@ class _EventsPageUnifiedState extends State<EventsPageUnified> with TickerProvid
       body: Stack(
         children: [
           BlocConsumer<EventBloc, EventState>(
-             listener: (context, state) {
+            listener: (context, state) {
               if (state is EventCreationSuccess) {
                 _triggerConfetti();
               }
@@ -256,7 +258,7 @@ class _EventsPageUnifiedState extends State<EventsPageUnified> with TickerProvid
             Align(
               alignment: Alignment.center,
               child: Lottie.asset(
-                'assets/animations/confetti.json', 
+                'assets/animations/confetti.json',
                 controller: _lottieController,
               ),
             ),
@@ -265,7 +267,6 @@ class _EventsPageUnifiedState extends State<EventsPageUnified> with TickerProvid
     );
   }
 }
-
 
 class _AnimatedEventTicket extends StatefulWidget {
   final Event event;

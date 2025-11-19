@@ -7,6 +7,7 @@ import '../../blocs/gallery/gallery_bloc.dart';
 import '../../blocs/gallery/gallery_event.dart';
 import '../../blocs/gallery/gallery_state.dart';
 import '../../data/model/gallery_person.dart';
+import '../widgets/main_drawer.dart';
 import 'new_person_page.dart';
 import 'edit_person_page.dart';
 
@@ -42,6 +43,7 @@ class _GalleryPageState extends State<GalleryPage> {
         ),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
+      drawer: const MainDrawer(currentPage: AppPage.gallery), // ⬅️ CORRECTED THIS
       floatingActionButton: FloatingActionButton(
         backgroundColor: azul,
         child: const Icon(Icons.add, color: Colors.black),

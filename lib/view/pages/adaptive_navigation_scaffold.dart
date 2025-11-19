@@ -46,15 +46,15 @@ class _AdaptiveNavigationScaffoldState extends State<AdaptiveNavigationScaffold>
         body: mainNavItems[_selectedIndex].page,
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: Colors.black,
-          type: BottomNavigationBarType.fixed, 
+          type: BottomNavigationBarType.fixed,
           currentIndex: _selectedIndex,
           selectedItemColor: azul, // Selected is Blue
           unselectedItemColor: Colors.yellow, // Unselected is Yellow
           onTap: (index) => setState(() => _selectedIndex = index),
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
-          items: mainNavItems.map((item) => 
-            BottomNavigationBarItem(icon: Icon(item.icon, size: 28), label: item.label)
+          items: mainNavItems.map((item) =>
+              BottomNavigationBarItem(icon: Icon(item.icon, size: 28), label: item.label)
           ).toList(),
         ),
       );
@@ -74,8 +74,8 @@ class _AdaptiveNavigationScaffoldState extends State<AdaptiveNavigationScaffold>
               selectedLabelTextStyle: TextStyle(color: azul, fontWeight: FontWeight.bold, fontSize: 14),
               unselectedLabelTextStyle: const TextStyle(color: Colors.yellow, fontWeight: FontWeight.normal, fontSize: 12),
               indicatorColor: Colors.transparent, // Let the icon color handle the selection
-              destinations: mainNavItems.map((item) => 
-                NavigationRailDestination(icon: Icon(item.icon), label: Text(item.label))
+              destinations: mainNavItems.map((item) =>
+                  NavigationRailDestination(icon: Icon(item.icon), label: Text(item.label))
               ).toList(),
             ),
             const VerticalDivider(thickness: 1, width: 1, color: Colors.grey),
